@@ -17,13 +17,14 @@ import java.nio.charset.Charset;
 public class Futil {
 	public static void processDir(String dirName, String resultFileName) {
 		Path dirPath = Paths.get(dirName);
-		try {
+		try (FileOutputStream out = new FileOutputStream("TPO1res.txt", true)) {
+			FileChannel fcout = out.getChannel();
+			fcout.truncate(0);
 			Files.walkFileTree(dirPath, new SimpleFileVisitor<Path>() {
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					try (FileInputStream in = new FileInputStream(file.toString());
-							FileOutputStream out = new FileOutputStream("TPO1res.txt", true)) {
+					try (FileInputStream in = new FileInputStream(file.toString());) {
 						FileChannel fcin = in.getChannel();
-						FileChannel fcout = out.getChannel();
+
 						int size = (int) fcin.size();
 						ByteBuffer buf = ByteBuffer.allocate(size);
 
@@ -38,12 +39,13 @@ public class Futil {
 						fcout.write(buf);
 
 						fcin.close();
-						fcout.close();
+						
 					}
 					return FileVisitResult.CONTINUE;
 				}
 
 			});
+			fcout.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
