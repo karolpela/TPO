@@ -1,7 +1,5 @@
 package zad1;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -10,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.channels.*;
 import java.nio.charset.Charset;
@@ -17,14 +16,12 @@ import java.nio.charset.Charset;
 public class Futil {
 	public static void processDir(String dirName, String resultFileName) {
 		Path dirPath = Paths.get(dirName);
-		try (FileOutputStream out = new FileOutputStream("TPO1res.txt", true)) {
-			FileChannel fcout = out.getChannel();
+		Path resPath = Paths.get(resultFileName);
+		try (FileChannel fcout = FileChannel.open(resPath, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
 			fcout.truncate(0);
 			Files.walkFileTree(dirPath, new SimpleFileVisitor<Path>() {
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-					try (FileInputStream in = new FileInputStream(file.toString());) {
-						FileChannel fcin = in.getChannel();
-
+					try (FileChannel fcin = FileChannel.open(file)) {
 						int size = (int) fcin.size();
 						ByteBuffer buf = ByteBuffer.allocate(size);
 
@@ -37,15 +34,10 @@ public class Futil {
 
 						buf = outCharset.encode(cbuf);
 						fcout.write(buf);
-
-						fcin.close();
-						
 					}
 					return FileVisitResult.CONTINUE;
 				}
-
 			});
-			fcout.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
