@@ -11,16 +11,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class Service {
     private static final String API_KEY = "9e3b822f0820bf7d604c31b366029096";
+    public static Map<String, String> countryMap;
 
     private String country;
+    private String countryCode;
     private Locale locale;
 
     public Service(String country) {
+        if (Service.countryMap == null)
+            populateMap();
         this.country = country;
+        Map<String,String> temp = Service.countryMap;
+        this.locale = new Locale(Service.countryMap.get(country));
+        this.countryCode = locale.getCountry();
     }
 
     public String getWeather(String city) {
@@ -42,5 +51,14 @@ public class Service {
         }
         System.out.println(s);
         return s;    
+    }
+
+    private static void populateMap() {
+        countryMap = new HashMap<>();
+        // https://stackoverflow.com/a/14155186/17862415
+        for (String country : Locale.getISOCountries()) {
+            Locale l = new Locale("", country);
+            countryMap.put(l.getDisplayCountry(), country);
+        }
     }
 }
