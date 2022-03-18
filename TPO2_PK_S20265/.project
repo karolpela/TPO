@@ -25,4 +25,10 @@
 			</matcher>
 		</filter>
 	</filteredResources>
+	<variableList>
+		<variable>
+			<name>Gson</name>
+			<value>file:/C:/Users/karol/OneDrive/Documents/PJATK/TPO/TPO2_PK_S20265/lib/gson-2.9.0.jar</value>
+		</variable>
+	</variableList>
 </projectDescription>
