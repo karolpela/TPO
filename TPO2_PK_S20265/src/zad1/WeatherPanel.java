@@ -28,7 +28,6 @@ final class WeatherPanel extends JPanel {
 		add(pressureLabel);
 		add(humidityLabel);
 		add(windLabel);
-		//setLayout(new GridLayout(0, 1));
 		setBorder(BorderFactory.createTitledBorder("Weather"));
 	}
 

@@ -1,16 +1,12 @@
 package zad1;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
 import javax.swing.JTextField;
 
 import com.google.gson.Gson;
@@ -19,7 +15,7 @@ import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import zad1.WeatherInfo.WeatherInfo;
 
-public class InputPanel extends JPanel{
+public class InputPanel extends JPanel {
 
     JTextField countryField;
     JTextField cityField;
@@ -36,7 +32,7 @@ public class InputPanel extends JPanel{
         c1.fill = GridBagConstraints.BOTH;
         c1.weightx = 1;
         c1.weighty = 1;
-        c1.gridx= 0;
+        c1.gridx = 0;
         c1.gridy = GridBagConstraints.RELATIVE;
         add(new JLabel("Country:"), c1);
         add(countryField = new JTextField(), c1);
@@ -67,7 +63,6 @@ public class InputPanel extends JPanel{
         setBorder(BorderFactory.createTitledBorder("Input"));
     }
 
-
     public CurrencyPanel getNBPPanel() {
         return NBPPanel;
     }
@@ -95,7 +90,6 @@ public class InputPanel extends JPanel{
     public WebEngine getWebEngine() {
         return webEngine;
     }
-
 
     public void setWebEngine(WebEngine webEngine) {
         this.webEngine = webEngine;
