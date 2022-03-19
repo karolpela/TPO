@@ -1,11 +1,8 @@
 package zad1;
 
-import java.awt.GridLayout;
-
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
 
 import zad1.WeatherInfo.WeatherInfo;
 
