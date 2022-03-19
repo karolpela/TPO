@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 public class Service {
     private static final String API_KEY = "9e3b822f0820bf7d604c31b366029096";
