@@ -37,7 +37,6 @@ public class Main {
 		JFrame jf = new JFrame("City info");
 
 		JPanel infoPanel = new JPanel(new GridBagLayout());
-
 		WeatherPanel weatherPanel = new WeatherPanel();
 		CurrencyPanel ratePanel = new CurrencyPanel("Currency rate");
 		CurrencyPanel NBPPanel = new CurrencyPanel("PLN rate");
