@@ -2,6 +2,7 @@ package zad1;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -28,28 +29,22 @@ public class InputPanel extends JPanel {
     public InputPanel() {
         super();
         setLayout(new GridBagLayout());
-        GridBagConstraints c1 = new GridBagConstraints();
-        c1.fill = GridBagConstraints.BOTH;
-        c1.weightx = 1;
-        c1.weighty = 1;
-        c1.gridx = 0;
-        c1.gridy = GridBagConstraints.RELATIVE;
-        add(new JLabel("Country:"), c1);
-        add(countryField = new JTextField(), c1);
-        add(new JLabel("City:"), c1);
-        add(cityField = new JTextField(), c1);
-        add(new JLabel("Currency:"), c1);
-        add(currencyField = new JTextField(), c1);
-        add(new JLabel(" "), c1);
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.gridx = 0;
+        c.gridy = GridBagConstraints.RELATIVE;
+        add(new JLabel("Country:"), c);
+        add(countryField = new JTextField(), c);
+        add(new JLabel("City:"), c);
+        add(cityField = new JTextField(), c);
+        add(new JLabel("Currency:"), c);
+        add(currencyField = new JTextField(), c);
         JButton updateButton = new JButton("Update");
-        GridBagConstraints c2 = new GridBagConstraints();
-        c2.fill = GridBagConstraints.BOTH;
-        c2.weightx = 1;
-        c2.weighty = 1;
-        c2.gridx = 0;
-        c2.gridy = GridBagConstraints.RELATIVE;
-        c2.ipady = 10;
-        add(updateButton, c2);
+        c.insets = new Insets(10,0,0,0);
+        c.ipady = 10;
+        add(updateButton, c);
         updateButton.addActionListener(l -> {
             Service s = new Service(countryField.getText());
             Gson gson = new Gson();
