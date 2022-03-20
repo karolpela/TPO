@@ -23,7 +23,7 @@
             "request": "launch",
             "mainClass": "zad1.Main",
             "projectName": "TPO2_PK_S20265",
-            "vmArgs": "--module-path C:\\Users\\karol\\libs\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.base,javafx.graphics,javafx.swing,javafx.controls,javafx.web"
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.base,javafx.graphics,javafx.swing,javafx.controls,javafx.web"
         }
     ]
 }
