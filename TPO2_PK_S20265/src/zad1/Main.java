@@ -7,7 +7,10 @@
 package zad1;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
 import javax.swing.JFrame;
@@ -40,7 +43,8 @@ public class Main {
 	public static void createGUI() {
 		JFrame jf = new JFrame("City info");
 
-		JPanel infoPanel = new JPanel(new GridLayout(0, 1));
+		JPanel infoPanel = new JPanel(new GridBagLayout());
+		
 		WeatherPanel weatherPanel = new WeatherPanel();
 		CurrencyPanel ratePanel = new CurrencyPanel("Currency rate");
 		CurrencyPanel NBPPanel = new CurrencyPanel("PLN rate");
@@ -55,10 +59,21 @@ public class Main {
 		inputPanel.setRatePanel(ratePanel);
 		inputPanel.setNBPPanel(NBPPanel);
 		
-		infoPanel.add(inputPanel);
-		infoPanel.add(weatherPanel);
-		infoPanel.add(ratePanel);
-		infoPanel.add(NBPPanel);
+
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.BOTH;
+		c.gridheight = 1;
+		c.gridwidth = 1;
+		c.weightx = 1;
+		c.gridx = 0;
+		infoPanel.add(inputPanel, c);
+		c.gridheight = 5;
+		c.weighty = 1;
+		infoPanel.add(weatherPanel, c);
+		c.weighty = 0;
+		c.gridheight = 1;
+		infoPanel.add(ratePanel, c);
+		infoPanel.add(NBPPanel,c);
 
 		infoPanel.setPreferredSize(new Dimension(150, 0));
 		jf.add(infoPanel, BorderLayout.LINE_START);
