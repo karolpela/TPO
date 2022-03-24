@@ -51,6 +51,21 @@ public class Service {
 			System.out.println("[!] Malformed URL");
 		} catch (IOException e) {
 			System.out.println("[!] Error opening stream");
+		} finally {
+			URL nbpCall;
+			try {
+				nbpCall = new URL("http://api.nbp.pl/api/exchangerates/rates/b/" 
+						+ currency.getCurrencyCode() + "/?format=json");
+				BufferedReader in = new BufferedReader(new InputStreamReader(nbpCall.openStream(), "UTF-8"));
+				nbpJson = "";
+				String line;
+				while ((line = in.readLine()) != null)
+					nbpJson += line;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		Gson gson = new Gson();
@@ -73,6 +88,21 @@ public class Service {
 			System.out.println("[!] Malformed URL");
 		} catch (IOException e) {
 			System.out.println("[!] Error opening stream");
+		} finally {
+			URL nbpCall;
+			try {
+				nbpCall = new URL("http://api.nbp.pl/api/exchangerates/rates/b/" 
+						+ currencyCode + "/?format=json");
+				BufferedReader in = new BufferedReader(new InputStreamReader(nbpCall.openStream(), "UTF-8"));
+				nbpJson = "";
+				String line;
+				while ((line = in.readLine()) != null)
+					nbpJson += line;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		Gson gson = new Gson();
@@ -84,6 +114,7 @@ public class Service {
 		String weatherJson = "";
 		try {
 			URL weatherCall = new URL("https://api.openweathermap.org/data/2.5/weather?q=" + city
+					+ "," + locale.getCountry()
 					+ "&units=metric" + "&appid=" + API_KEY);
 			BufferedReader in = new BufferedReader(new InputStreamReader(weatherCall.openStream(), "UTF-8"));
 			String line;
