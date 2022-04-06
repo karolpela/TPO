@@ -24,7 +24,7 @@ import javafx.scene.web.WebView;
 
 public class Main {
 	public static void main(String[] args) {
-		//Lines below are for SDKP tests 
+		// Lines below are for SDKP tests 
 
 		//Service s = new Service("Poland");
 		//String weatherJson = s.getWeather("Warsaw");
