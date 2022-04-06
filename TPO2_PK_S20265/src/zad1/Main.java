@@ -14,6 +14,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -23,14 +24,18 @@ import javafx.scene.web.WebView;
 
 public class Main {
 	public static void main(String[] args) {
-		Service s = new Service("Poland");
-		String weatherJson = s.getWeather("Warsaw");
-		Double rate1 = s.getRateFor("USD");
-		Double rate2 = s.getNBPRate();
+		//Lines below are for SDKP tests 
+
+		//Service s = new Service("Poland");
+		//String weatherJson = s.getWeather("Warsaw");
+		//Double rate1 = s.getRateFor("USD");
+		//Double rate2 = s.getNBPRate();
+
+		
 		// ...
 		// część uruchamiająca GUI
 
-		SwingUtilities.invokeLater(() -> createGUI());
+		SwingUtilities.invokeLater(Main::createGUI);
 	}
 
 	public static void createGUI() {
@@ -39,12 +44,12 @@ public class Main {
 		JPanel infoPanel = new JPanel(new GridBagLayout());
 		WeatherPanel weatherPanel = new WeatherPanel();
 		CurrencyPanel ratePanel = new CurrencyPanel("Currency rate");
-		CurrencyPanel NBPPanel = new CurrencyPanel("PLN rate");
+		CurrencyPanel nbpPanel = new CurrencyPanel("PLN rate");
 
 		InputPanel inputPanel = new InputPanel();
 		inputPanel.setWeatherPanel(weatherPanel);
 		inputPanel.setRatePanel(ratePanel);
-		inputPanel.setNBPPanel(NBPPanel);
+		inputPanel.setNBPPanel(nbpPanel);
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
@@ -59,7 +64,7 @@ public class Main {
 		c.weighty = 0;
 		c.gridheight = 1;
 		infoPanel.add(ratePanel, c);
-		infoPanel.add(NBPPanel, c);
+		infoPanel.add(nbpPanel, c);
 
 		infoPanel.setPreferredSize(new Dimension(150, 0));
 		jf.add(infoPanel, BorderLayout.LINE_START);
@@ -67,15 +72,13 @@ public class Main {
 		JFXPanel fxPanel = new JFXPanel();
 		jf.add(fxPanel, BorderLayout.CENTER);
 
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
+		Platform.runLater(() -> {
 				initFX(fxPanel);
 				inputPanel.setWebEngine(webEngine);
 			}
-		});
+		);
 
-		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		jf.setSize(1280, 720);
 		jf.setLocationRelativeTo(null);
 		jf.setVisible(true);
