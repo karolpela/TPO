@@ -4,6 +4,7 @@
         "sun.*",
         "jdk.*",
         "org.graalvm.*",
-        "io.micrometer.shaded.*"
+        "io.micrometer.shaded.*",
+        "java.awt.*"
     ]
 }

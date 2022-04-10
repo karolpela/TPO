@@ -28,14 +28,12 @@ public class Service {
 	public static final String URL_ERROR_MESSAGE = "[!] Malformed URL";
 	public static final String STREAM_ERROR_MESSAGE = "[!] Error opening stream";
 
-
 	private Locale locale;
 	private Currency currency;
 
 	public Service(String country) {
 		Optional<Locale> ol = Arrays.stream(Locale.getAvailableLocales())
-			.filter(l -> l.getDisplayCountry().equals(country))
-			.findFirst();
+				.filter(l -> l.getDisplayCountry().equals(country)).findFirst();
 		if (ol.isPresent()) {
 			this.locale = ol.get();
 		}
@@ -49,7 +47,8 @@ public class Service {
 	public static String jsonFromUrl(URL url) throws IOException {
 		StringBuilder jsonBuilder = new StringBuilder();
 		String line;
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
+		try (BufferedReader in = new BufferedReader(
+				new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
 			while ((line = in.readLine()) != null) {
 				jsonBuilder.append(line);
 			}
@@ -58,8 +57,8 @@ public class Service {
 	}
 
 	public static URL getNbpCall(char table) throws MalformedURLException {
-		return new URL("http://api.nbp.pl/api/exchangerates/tables/"+ table + "?format=json");
-	} 
+		return new URL("http://api.nbp.pl/api/exchangerates/tables/" + table + "?format=json");
+	}
 
 	public Double getNBPRate() {
 		double result = 0.0;
@@ -72,21 +71,19 @@ public class Service {
 			Gson gson = new Gson();
 			String json = jsonFromUrl(nbpCall);
 			CurrencyTable[] ct = gson.fromJson(json, CurrencyTable[].class);
-			Optional<Rate> rate = ct[0].getRates().stream()
-					.filter(r -> r.getCode().equals(code))
-					.findFirst();
+			Optional<Rate> rate =
+					ct[0].getRates().stream().filter(r -> r.getCode().equals(code)).findFirst();
 			if (!rate.isPresent()) {
 				nbpCall = getNbpCall('B');
 				json = jsonFromUrl(nbpCall);
-				ct = gson.fromJson(json, CurrencyTable[].class); //table because of misformatted json
-				rate = ct[0].getRates().stream()
-					.filter(r -> r.getCode().equals(code))
-					.findFirst();
+				ct = gson.fromJson(json, CurrencyTable[].class); // table because of misformatted
+																	// json
+				rate = ct[0].getRates().stream().filter(r -> r.getCode().equals(code)).findFirst();
 			}
 			if (rate.isPresent()) {
 				result = rate.get().getMid();
 			}
-					
+
 		} catch (MalformedURLException e) {
 			System.out.println(URL_ERROR_MESSAGE);
 		} catch (IOException e) {
@@ -105,21 +102,18 @@ public class Service {
 			Gson gson = new Gson();
 			String json = jsonFromUrl(nbpCall);
 			CurrencyTable[] ct = gson.fromJson(json, CurrencyTable[].class);
-			Optional<Rate> rate = ct[0].getRates().stream()
-					.filter(r -> r.getCode().equals(code))
-					.findFirst();
+			Optional<Rate> rate =
+					ct[0].getRates().stream().filter(r -> r.getCode().equals(code)).findFirst();
 			if (!rate.isPresent()) {
 				nbpCall = getNbpCall('B');
 				json = jsonFromUrl(nbpCall);
 				ct = gson.fromJson(json, CurrencyTable[].class);
-				rate = ct[0].getRates().stream()
-					.filter(r -> r.getCode().equals(code))
-					.findFirst();
+				rate = ct[0].getRates().stream().filter(r -> r.getCode().equals(code)).findFirst();
 			}
 			if (rate.isPresent()) {
 				result = rate.get().getMid();
 			}
-					
+
 		} catch (MalformedURLException e) {
 			System.out.println(URL_ERROR_MESSAGE);
 		} catch (IOException e) {
@@ -136,9 +130,8 @@ public class Service {
 	public String getWeather(String city) {
 		String weatherJson = "";
 		try {
-			URL weatherCall = new URL("https://api.openweathermap.org/data/2.5/weather?q="
-			+ city + "," + locale.getCountry()
-			+ "&units=metric" + "&appid=" + API_KEY);
+			URL weatherCall = new URL("https://api.openweathermap.org/data/2.5/weather?q=" + city
+					+ "," + locale.getCountry() + "&units=metric" + "&appid=" + API_KEY);
 			weatherJson = jsonFromUrl(weatherCall);
 		} catch (MalformedURLException e) {
 			System.out.println(URL_ERROR_MESSAGE);
