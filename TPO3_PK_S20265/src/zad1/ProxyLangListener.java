@@ -24,8 +24,8 @@ public class ProxyLangListener implements Runnable {
         try (ServerSocket serverSocket = new ServerSocket(listenerPort)) {
             while (true) {
                 Socket langSocket = serverSocket.accept();
-                BufferedReader inFromLangServer = new BufferedReader(
-                        new InputStreamReader(langSocket.getInputStream()));
+                BufferedReader inFromLangServer =
+                        new BufferedReader(new InputStreamReader(langSocket.getInputStream()));
                 String langServerName = inFromLangServer.readLine();
                 System.out.println("[i] Language server \"" + langServerName + "\" connected");
                 parent.addLangServer(langServerName, langSocket);

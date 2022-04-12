@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -45,21 +46,33 @@ public class Controller {
 
     @FXML
     public void sendRequest() {
-        String request = wordField.getText() + "," + langField.getText() + ","
-                + portField.getText();
+        String request =
+                wordField.getText() + "," + langField.getText() + "," + portField.getText();
         try (Socket proxySocket = new Socket(InetAddress.getByName(PROXY_ADDRESS), PROXY_PORT);
-                PrintWriter outToProxy = new PrintWriter(proxySocket.getOutputStream(), true,
-                        StandardCharsets.UTF_8);
-                ServerSocket langServerListener = new ServerSocket(
-                        Integer.parseInt(portField.getText()));) {
+                PrintWriter outToProxy = new PrintWriter(proxySocket.getOutputStream(), true, StandardCharsets.UTF_8);
+                BufferedReader inFromProxy = new BufferedReader(new InputStreamReader(proxySocket.getInputStream(), StandardCharsets.UTF_8));      
+                ServerSocket langServerListener = new ServerSocket(Integer.parseInt(portField.getText()));) {
+            proxySocket.setSoTimeout(3000);
             langServerListener.setSoTimeout(6000);
             outToProxy.println(request);
 
-            Socket langServerSocket = langServerListener.accept();
-            BufferedReader inFromLangServer = new BufferedReader(new InputStreamReader(
-                    langServerSocket.getInputStream(), StandardCharsets.UTF_8));
-            String response = inFromLangServer.readLine();
-            responseArea.setText(response);
+            String proxyResponse = inFromProxy.readLine();
+            if (proxyResponse.startsWith("ERR")) {
+                throw new NoSuchLanguageException();
+            }
+                    
+            try (Socket langServerSocket = langServerListener.accept()) {
+                BufferedReader inFromLangServer =
+                        new BufferedReader(new InputStreamReader(langServerSocket.getInputStream(),
+                                StandardCharsets.UTF_8));
+                String langResponse = inFromLangServer.readLine();
+                responseArea.setText(langResponse);
+            }
+
+        } catch (NoSuchLanguageException ce) {
+            responseArea.setText("<No server for requested language>");
+        } catch (ConnectException ce) {
+            responseArea.setText("<Unable to connect to proxy>");
         } catch (IllegalArgumentException iae) {
             responseArea.setText("<Port out of range>");
         } catch (SocketTimeoutException ste) {

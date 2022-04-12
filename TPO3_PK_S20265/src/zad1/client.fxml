@@ -60,7 +60,7 @@
                   </VBox>
                   <VBox>
                      <children>
-                        <Label text="port" textAlignment="JUSTIFY" />
+                        <Label text="port" />
                         <TextField fx:id="portField" promptText="8800" text="8800" />
                      </children>
                   </VBox>

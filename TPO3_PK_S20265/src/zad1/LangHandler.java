@@ -24,11 +24,9 @@ public class LangHandler implements Runnable {
             int clientPort = Integer.parseInt(parameters[2]);
 
             // open connection to client
-
             try (Socket clientSocket = new Socket(clientIp, clientPort);
                     PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(), true)) {
                 String response = dictionary.getOrDefault(word, "<No translation found>");
-
                 outToClient.println(response);
             }
         } catch (IOException ioe) {

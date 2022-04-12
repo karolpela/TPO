@@ -18,13 +18,14 @@ public class ProxyClientHandler implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("[i] Client " + socket.getInetAddress().getHostAddress() + " connected");
-        try (PrintWriter outToClient = new PrintWriter(socket.getOutputStream(), true)) {
-            BufferedReader inFromClient = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+        System.out.println("[i] Client \"" + socket.getInetAddress().getHostAddress() + "\" connected");
+        try (PrintWriter outToClient = new PrintWriter(socket.getOutputStream(), true);
+                BufferedReader inFromClient = new BufferedReader(
+                        new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {
+
             String[] clientRequest = inFromClient.readLine().split(",");
             if (clientRequest.length != 3) {
-                outToClient.println("[!] Incorrect parameter count");
+                outToClient.println("ERR: Incorrect parameter count");
                 throw new InterruptedException();
             }
 
@@ -34,8 +35,10 @@ public class ProxyClientHandler implements Runnable {
 
             Socket langServerSocket = parent.getLangServer(lang);
             if (langServerSocket == null) {
-                outToClient.println("[!] No server for requested language");
+                outToClient.println("ERR: No server for requested language");
                 throw new InterruptedException();
+            } else {
+                outToClient.println("OK: Forwarding to language server");
             }
 
             String clientAddress = socket.getInetAddress().getHostAddress();
