@@ -39,7 +39,7 @@ public class LangServer implements Runnable {
                                 StandardCharsets.UTF_8))) {
             outToProxy.println(language);
             ExecutorService threadPool = Executors.newFixedThreadPool(poolSize);
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 String request = inFromProxy.readLine();
                 System.out.println("[" + language + "] Got translation request: " + request);
                 threadPool.execute(new LangHandler(request, dictionary));

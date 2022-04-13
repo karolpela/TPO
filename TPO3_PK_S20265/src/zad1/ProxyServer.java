@@ -23,22 +23,17 @@ public class ProxyServer implements Runnable {
 
     @Override
     public void run() {
-        // create a thread to listen for new lang server connections
-        Thread listenerThread = new Thread(new ProxyLangListener(LISTENER_PORT, this));
-
+        ExecutorService threadPool = Executors.newFixedThreadPool(poolSize);
         // handle requests from clients
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            // start the listener thread
-            listenerThread.start();
-            // create a thread pool and listen for client connections
-            ExecutorService threadPool = Executors.newFixedThreadPool(poolSize);
-            while (true) {
+            threadPool.execute(new ProxyLangListener(LISTENER_PORT, this));
+            while (!Thread.currentThread().isInterrupted()) {
                 threadPool.execute(new ProxyClientHandler(serverSocket.accept(), this));
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            listenerThread.interrupt();
+            threadPool.shutdown();
         }
     }
 

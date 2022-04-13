@@ -22,7 +22,7 @@ public class ProxyLangListener implements Runnable {
     @Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(listenerPort)) {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 Socket langSocket = serverSocket.accept();
                 BufferedReader inFromLangServer =
                         new BufferedReader(new InputStreamReader(langSocket.getInputStream()));
