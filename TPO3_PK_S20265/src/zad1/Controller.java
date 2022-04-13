@@ -22,6 +22,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class Controller {
+    private static final int LANG_TIMEOUT = 6000;
+    private static final int PROXY_TIMEOUT = 3000;
     private static final String PROXY_ADDRESS = "127.0.0.1";
     private static final int PROXY_PORT = 9000;
     private static final int MAX_PORT = (int) (Math.pow(2, 16) - 1);
@@ -67,8 +69,8 @@ public class Controller {
                                 StandardCharsets.UTF_8));
                 ServerSocket langServerListener =
                         new ServerSocket(Integer.parseInt(portField.getText()));) {
-            proxySocket.setSoTimeout(3000);
-            langServerListener.setSoTimeout(6000);
+            proxySocket.setSoTimeout(PROXY_TIMEOUT);
+            langServerListener.setSoTimeout(LANG_TIMEOUT);
             outToProxy.println(request);
 
             String proxyResponse = inFromProxy.readLine();
