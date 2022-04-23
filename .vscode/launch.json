@@ -6,13 +6,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch Client",
-            "request": "launch",
-            "mainClass": "zad1.Client",
-            "projectName": "TPO3_PK_S20265"
-        },
-        {
-            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
