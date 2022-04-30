@@ -157,65 +157,92 @@ public class Server {
                     writeToChannel(socketChannel, "Hi");
                 }
                 case "Bye" -> {
-                    writeToChannel(socketChannel, "Bye");
-                    System.out.println(this + " saying \"Bye\" to client...");
-
-                    // close the channel and its socket
-                    socketChannel.close();
-                    socketChannel.socket().close();
+                    sayByeAndDisconnect(socketChannel);
                 }
                 case "ADD_TOPIC" -> {
-                    String topic = arguments;
-                    channelsByTopic.put(topic, new ArrayList<>());
-                    System.out.println(this + "Added new topic \"" + topic + "\"");
-
-                    var allChannels = messagesByChannel.keySet();
-                    for (SocketChannel sc : allChannels) {
-                        messagesByChannel.get(sc).add("ADD_TOPIC;" + topic);
-                    }
+                    addAndNotifySubs(arguments);
                 }
                 case "REMOVE_TOPIC" -> {
-                    String topic = arguments;
-                    channelsByTopic.remove("key");
-                    System.out.println(this + "Removed  topic \"" + topic + "\"");
-
-                    var allChannels = messagesByChannel.keySet();
-                    for (SocketChannel sc : allChannels) {
-                        messagesByChannel.get(sc).add("REMOVE_TOPIC;" + topic);
-                    }
+                    removeAndNotifySubs(arguments);
                 }
                 case "MESSAGE" -> {
-                    var argArray = arguments.split("`");
-                    String topic = argArray[0];
-                    String message = argArray[1];
-                    var subscribers = channelsByTopic.get(topic);
-                    for (SocketChannel sc : subscribers) {
-                        messagesByChannel.get(sc).add(message);
-                    }
-                    System.out.println(this + "Added message \"" + message + "\"" +
-                            "to topic \"" + topic + "\"");
+                    registerAndNotifySubs(arguments);
                 }
                 case "SUBSCRIBE" -> {
-                    String topic = arguments;
-                    var channels = channelsByTopic.get("topic");
-                    channels.add(socketChannel);
-                    writeToChannel(socketChannel,
-                            "Successfully subscribed to \"" + topic + "\"");
+                    handleSubRequest(socketChannel, arguments);
                 }
                 case "UNSUBSRIBE" -> {
-                    String topic = arguments;
-                    var channels = channelsByTopic.get("topic");
-                    channels.remove(socketChannel);
-                    writeToChannel(socketChannel,
-                            "Successfully unsubscribed from \"" + topic + "\"");
+                    handleUnsubRequest(socketChannel, arguments);
                 }
                 default -> {
+                    // echo
                     writeToChannel(socketChannel, command);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sayByeAndDisconnect(SocketChannel socketChannel) throws IOException {
+        writeToChannel(socketChannel, "Bye");
+        System.out.println(this + " saying \"Bye\" to client...");
+
+        // close the channel and its socket
+        socketChannel.close();
+        socketChannel.socket().close();
+    }
+
+    private void handleUnsubRequest(SocketChannel socketChannel, String arguments)
+            throws IOException {
+        String topic = arguments;
+        var channels = channelsByTopic.get("topic");
+        channels.remove(socketChannel);
+        writeToChannel(socketChannel,
+                "Successfully unsubscribed from \"" + topic + "\"");
+    }
+
+    private void handleSubRequest(SocketChannel socketChannel, String arguments)
+            throws IOException {
+        String topic = arguments;
+        var channels = channelsByTopic.get("topic");
+        channels.add(socketChannel);
+        writeToChannel(socketChannel,
+                "Successfully subscribed to \"" + topic + "\"");
+    }
+
+    private void addAndNotifySubs(String arguments) {
+        String topic = arguments;
+        channelsByTopic.put(topic, new ArrayList<>());
+        System.out.println(this + "Added new topic \"" + topic + "\"");
+
+        var allChannels = messagesByChannel.keySet();
+        for (SocketChannel sc : allChannels) {
+            messagesByChannel.get(sc).add("ADD_TOPIC;" + topic);
+        }
+    }
+
+    private void removeAndNotifySubs(String arguments) {
+        String topic = arguments;
+        channelsByTopic.remove("key");
+        System.out.println(this + "Removed  topic \"" + topic + "\"");
+
+        var allChannels = messagesByChannel.keySet();
+        for (SocketChannel sc : allChannels) {
+            messagesByChannel.get(sc).add("REMOVE_TOPIC;" + topic);
+        }
+    }
+
+    private void registerAndNotifySubs(String arguments) {
+        var argArray = arguments.split("`");
+        String topic = argArray[0];
+        String message = argArray[1];
+        var subscribers = channelsByTopic.get(topic);
+        for (SocketChannel sc : subscribers) {
+            messagesByChannel.get(sc).add(message);
+        }
+        System.out.println(this + "Added message \"" + message + "\"" +
+                "to topic \"" + topic + "\"");
     }
 
     private int writeToChannel(SocketChannel socketChannel, String message) throws IOException {
