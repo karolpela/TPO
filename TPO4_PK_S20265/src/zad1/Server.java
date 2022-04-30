@@ -17,8 +17,8 @@ import java.util.Set;
 
 public class Server {
 
-    private static final String HOST = "localhost";
-    private static final int PORT = 9000;
+    public static final String HOST = "localhost";
+    public static final int PORT = 9000;
 
     public static void main(String[] args) throws IOException {
         new Server();
@@ -38,7 +38,7 @@ public class Server {
 
             System.out.println(this + " Waiting for connections...");
 
-            // main server loop
+            // *** main server loop *** //
             while (true) {
                 // select a set of keys once there are ready ones
                 selector.select();
@@ -51,8 +51,6 @@ public class Server {
                     // get the key and remove it from further iterations
                     SelectionKey key = iterator.next();
                     iterator.remove();
-
-                    /* perform main actions */
 
                     // if there's a new client connection
                     if (key.isAcceptable()) {
@@ -125,21 +123,22 @@ public class Server {
 
                 while (charBuffer.hasRemaining()) {
                     char c = charBuffer.get();
-                    System.out.println(c);
                     if (c == '\r' || c == '\n') {
                         reading = false;
                         break;
                     }
-                    System.out.println(c);
                     sb.append(c);
                 }
             }
 
             var requestArray = sb.toString().split(";");
             String command = requestArray[0];
-            String arguments = requestArray[1];
+            String arguments = "";
+            if (requestArray.length > 1) {
+                arguments = requestArray[1];
+            }
 
-            System.out.println(this + " got request: [" + command + "] " + arguments);
+            System.out.println(this + " got request: \"" + command + "\" " + arguments);
 
             switch (command) {
                 case "Hi" -> {
@@ -158,14 +157,13 @@ public class Server {
                 }
                 case "UNSUBSRIBE" -> {
                     //
-
                 }
                 default -> {
-                    // default
+                    writeToChannel(socketChannel, command);
                 }
             }
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -175,6 +173,6 @@ public class Server {
 
     @Override
     public String toString() {
-        return "Server";
+        return "(Server)";
     }
 }

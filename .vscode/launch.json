@@ -35,11 +35,46 @@
         },
         {
             "type": "java",
-            "name": "TPO3client",
+            "name": "TPO3 Client",
             "request": "launch",
             "mainClass": "zad1.Client",
             "projectName": "TPO3_PK_S20265",
             "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics"
+        },
+        {
+            "type": "java",
+            "name": "TPO4 Server",
+            "request": "launch",
+            "mainClass": "zad1.Server",
+            "projectName": "TPO4_PK_S20265",
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO4",
+                "order": 1
+            }
+        },
+        {
+            "type": "java",
+            "name": "TPO4 Client",
+            "request": "launch",
+            "mainClass": "zad1.Client",
+            "projectName": "TPO4_PK_S20265",
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO4",
+                "order": 2
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "TPO4 Server/Client",
+            "configurations": [
+                "TPO4 Server",
+                "TPO4 Client"
+            ]
         }
     ]
 }
