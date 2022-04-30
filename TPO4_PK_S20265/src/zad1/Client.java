@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Scanner;
 import static zad1.Server.HOST;
 import static zad1.Server.PORT;
@@ -13,6 +14,7 @@ public class Client {
 
     public static void main(String[] args) throws InterruptedException {
         Thread.sleep(1000);
+        var topics = new ArrayList<>();
         try (var socketChannel = SocketChannel.open()) {
             socketChannel.configureBlocking(false);
             socketChannel.connect(new InetSocketAddress(HOST, PORT));
@@ -58,12 +60,35 @@ public class Client {
                 inBuffer.flip();
                 charBuffer = charset.decode(inBuffer);
                 String fromServer = charBuffer.toString();
+                var fromServerArray = fromServer.split(";");
 
                 System.out.println("(Client) Got text from server: \"" + fromServer + "\"");
                 charBuffer.clear();
 
-                if (fromServer.equals("Bye"))
-                    break;
+                String command = fromServerArray[0];
+                String arguments = null;
+                if (fromServerArray.length > 1) {
+                    arguments = fromServerArray[1];
+                }
+
+                switch (command) {
+                    case "Bye" -> {
+                        break;
+                    }
+                    case "ADD_TOPIC" -> {
+                        String topic = arguments;
+                        topics.add(topic);
+                    }
+                    case "REMOVE_TOPIC" -> {
+                        String topic = arguments;
+                        topics.remove(topic);
+                    }
+                    default -> {
+                        System.out.println("No action specified for command \"" + command + "\"");
+                    }
+                }
+
+
 
                 // prepare response
                 String input = scanner.nextLine();
