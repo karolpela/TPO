@@ -13,6 +13,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -159,13 +160,13 @@ public class Server {
                     sayByeAndDisconnect(socketChannel);
                 }
                 case "PUBLISH" -> {
-                    publishAndNotifySubs(arguments);
+                    publishAndNotifySubs(socketChannel, arguments);
                 }
                 case "UNPUBLISH" -> {
-                    unpublishAndNotifySubs(arguments);
+                    unpublishAndNotifySubs(socketChannel, arguments);
                 }
                 case "MESSAGE" -> {
-                    registerAndNotifySubs(arguments);
+                    registerAndNotifySubs(socketChannel, arguments);
                 }
                 case "SUBSCRIBE" -> {
                     handleSubRequest(socketChannel, arguments);
@@ -196,7 +197,12 @@ public class Server {
             throws IOException {
         String topic = arguments;
         var channels = channelsByTopic.get("topic");
-        channels.remove(socketChannel);
+        if (channels == null) {
+            writeToChannel(socketChannel, "No such topic \"" + topic + "\"");
+        } else {
+            channels.remove(socketChannel);
+
+        }
         writeToChannel(socketChannel,
                 "Successfully unsubscribed from \"" + topic + "\"");
     }
@@ -205,23 +211,25 @@ public class Server {
             throws IOException {
         String topic = arguments;
         var channels = channelsByTopic.get("topic");
-        channels.add(socketChannel);
+        if (channels == null)
+            channelsByTopic.put(topic, Arrays.asList(socketChannel));
         writeToChannel(socketChannel,
                 "Successfully subscribed to \"" + topic + "\"");
     }
 
-    private void publishAndNotifySubs(String arguments) {
+    private void publishAndNotifySubs(SocketChannel publisher, String arguments) {
         String topic = arguments;
         channelsByTopic.put(topic, new ArrayList<>());
-        System.out.println(this + "Added new topic \"" + topic + "\"");
+        System.out.println(this + " Added new topic \"" + topic + "\"");
 
         var allChannels = messagesByChannel.keySet();
         for (SocketChannel sc : allChannels) {
             messagesByChannel.get(sc).add("ADD_TOPIC;" + topic);
         }
+        messagesByChannel.get(publisher).add("OK");
     }
 
-    private void unpublishAndNotifySubs(String arguments) {
+    private void unpublishAndNotifySubs(SocketChannel publisher, String arguments) {
         String topic = arguments;
         channelsByTopic.remove("key");
         System.out.println(this + "Removed  topic \"" + topic + "\"");
@@ -230,9 +238,10 @@ public class Server {
         for (SocketChannel sc : allChannels) {
             messagesByChannel.get(sc).add("REMOVE_TOPIC;" + topic);
         }
+        messagesByChannel.get(publisher).add("OK");
     }
 
-    private void registerAndNotifySubs(String arguments) {
+    private void registerAndNotifySubs(SocketChannel publisher, String arguments) {
         var argArray = arguments.split("`");
         String topic = argArray[0];
         String message = argArray[1];
@@ -240,7 +249,8 @@ public class Server {
         for (SocketChannel sc : subscribers) {
             messagesByChannel.get(sc).add(message);
         }
-        System.out.println(this + "Added message \"" + message + "\"" +
+        messagesByChannel.get(publisher).add("OK");
+        System.out.println(this + " Added message \"" + message + "\"" +
                 "to topic \"" + topic + "\"");
     }
 

@@ -1,72 +1,85 @@
 package zad1;
 
-import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.SocketChannel;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.stage.Stage;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Scanner;
+import static zad1.Server.HOST;
+import static zad1.Server.PORT;
 
-public class Publisher extends Application {
-    @FXML
-    private Button publishButton;
+public class Publisher {
 
-    @FXML
-    private ListView<String> topicView;
+    public static void main(String[] args) throws InterruptedException {
+        Thread.sleep(2000);
+        var topics = new ArrayList<>();
+        try (var socketChannel = SocketChannel.open()) {
+            socketChannel.configureBlocking(false);
+            socketChannel.connect(new InetSocketAddress(HOST, PORT));
+            System.out.println("(Publisher) Connecting to server...");
 
-    @FXML
-    private TextField topicField;
+            while (!socketChannel.finishConnect()) {
+                // progress bar or other operations until connected
+            }
 
-    @FXML
-    private Button unpublishButton;
+            System.out.println("(Publisher) Connected to server");
 
-    @FXML
-    private SocketChannel toServer;
+            var charset = StandardCharsets.UTF_8;
+            var scanner = new Scanner(System.in);
+
+            // *** allocate the buffer ***
+            // allocateDirect allows for use of hardware mechanisms
+            // to speed up I/O operations
+            // the buffer should only be allocated *once* and reused
+
+            ByteBuffer inBuffer = ByteBuffer.allocateDirect(1024);
+            CharBuffer charBuffer;
+
+            System.out.println("(Publisher) Saying \"Hi\" to server");
+            socketChannel.write(charset.encode("Hi" + '\n'));
+
+            while (true) {
+                // clear the buffer
+                inBuffer.clear();
+
+                // read new data
+                int readBytes = socketChannel.read(inBuffer);
+
+                if (readBytes == 0) {
+                    // short term operations, eg. elapsed time
+                    continue;
+                }
+                if (readBytes == -1) {
+                    // means the channel is closed from server side
+                    break;
+                }
+
+                // if there's new data
+                inBuffer.flip();
+                charBuffer = charset.decode(inBuffer);
+                String fromServer = charBuffer.toString();
+
+                System.out.println("(Publisher) Got text from server: \"" + fromServer + "\"");
+                charBuffer.clear();
 
 
+                // prepare response
+                String input = scanner.nextLine();
+                charBuffer = CharBuffer.wrap(input + '\n');
+                ByteBuffer outBuffer = charset.encode(charBuffer);
 
-    public static void main(String[] args) {
-        launch();
-    }
+                // send response
+                socketChannel.write(outBuffer);
+                System.out.println("(Publisher) Writing to server: \"" + input + "\"");
 
-    @FXML
-    public void addTopic(String topic) {
-        topicView.getItems().add(topic);
-    }
+            }
 
-    @FXML
-    public void removeTopic(String topic) {
-        topicView.getItems().remove(topic);
-    }
+            scanner.close();
 
-    @FXML
-    public void publish(ActionEvent e) throws IOException {
-        String topic = topicField.getText();
-        String message = "PUBLISH;" + topic;
-        ChannelHelper.writeToChannel(toServer, message);
-    }
-
-    @FXML
-    public void unpublish(ActionEvent e) throws IOException {
-        String topic = topicView.getSelectionModel().getSelectedItem();
-        String message = "UNPUBLISH;" + topic;
-        ChannelHelper.writeToChannel(toServer, message);
-    }
-
-    @Override
-    public void start(Stage stage) throws IOException, InterruptedException {
-        Parent root = FXMLLoader.load(getClass().getResource("Publisher.fxml"));
-        stage.setScene(new Scene(root));
-        stage.show();
-
-        toServer = null;
-        // Platform.runLater(new PublisherThread());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -13,7 +13,7 @@ import static zad1.Server.PORT;
 public class Client {
 
     public static void main(String[] args) throws InterruptedException {
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         var topics = new ArrayList<>();
         try (var socketChannel = SocketChannel.open()) {
             socketChannel.configureBlocking(false);
@@ -78,17 +78,19 @@ public class Client {
                     case "ADD_TOPIC" -> {
                         String topic = arguments;
                         topics.add(topic);
+                        System.out.println("(Client) Added new topic \"" + topic + "\"");
                     }
                     case "REMOVE_TOPIC" -> {
                         String topic = arguments;
                         topics.remove(topic);
+                        System.out.println("(Client) Removed topic \"" + topic + "\"");
+
                     }
                     default -> {
-                        System.out.println("No action specified for command \"" + command + "\"");
+                        System.out.println(
+                                "(Client) No action specified for command \"" + command + "\"");
                     }
                 }
-
-
 
                 // prepare response
                 String input = scanner.nextLine();
