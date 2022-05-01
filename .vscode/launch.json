@@ -105,6 +105,19 @@
                 "group": "TPO4",
                 "order": 5
             }
-        }
+        },
+        {
+            "name": "TPO4 All-in-one",
+            "configurations": [
+                "TPO4 Server",
+                "TPO4 Client",
+                "TPO4 Publisher"
+            ],
+            "presentation": {
+                "hidden": false,
+                "group": "TPO4",
+                "order": 5
+            }
+        },
     ]
 }
