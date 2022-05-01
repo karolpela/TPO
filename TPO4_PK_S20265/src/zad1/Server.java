@@ -1,11 +1,11 @@
 package zad1;
 
+import static zad1.ChannelHelper.writeToChannel;
 import static java.nio.channels.SelectionKey.OP_READ;
 import static java.nio.channels.SelectionKey.OP_WRITE;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -62,17 +62,16 @@ public class Server {
                     // if there's a new client connection
                     if (key.isAcceptable()) {
                         System.out.println(this + " got a new connection");
-                        System.out.println(key.channel());
                         // create a channel to communicate with client
                         // "accept() is non-blocking since client's already waiting"
                         var socketChannel = serverSocketChannel.accept();
 
                         // configure and register the channel
                         socketChannel.configureBlocking(false);
-                        socketChannel.register(selector, OP_READ | OP_WRITE);
+                        var clientKey = socketChannel.register(selector, OP_READ | OP_WRITE);
 
                         // create a queue for this channel
-                        messagesByChannel.put((SocketChannel) key.channel(),
+                        messagesByChannel.put((SocketChannel) clientKey.channel(),
                                 new LinkedBlockingQueue<>());
 
                         continue;
@@ -159,11 +158,11 @@ public class Server {
                 case "Bye" -> {
                     sayByeAndDisconnect(socketChannel);
                 }
-                case "ADD_TOPIC" -> {
-                    addAndNotifySubs(arguments);
+                case "PUBLISH" -> {
+                    publishAndNotifySubs(arguments);
                 }
-                case "REMOVE_TOPIC" -> {
-                    removeAndNotifySubs(arguments);
+                case "UNPUBLISH" -> {
+                    unpublishAndNotifySubs(arguments);
                 }
                 case "MESSAGE" -> {
                     registerAndNotifySubs(arguments);
@@ -211,7 +210,7 @@ public class Server {
                 "Successfully subscribed to \"" + topic + "\"");
     }
 
-    private void addAndNotifySubs(String arguments) {
+    private void publishAndNotifySubs(String arguments) {
         String topic = arguments;
         channelsByTopic.put(topic, new ArrayList<>());
         System.out.println(this + "Added new topic \"" + topic + "\"");
@@ -222,7 +221,7 @@ public class Server {
         }
     }
 
-    private void removeAndNotifySubs(String arguments) {
+    private void unpublishAndNotifySubs(String arguments) {
         String topic = arguments;
         channelsByTopic.remove("key");
         System.out.println(this + "Removed  topic \"" + topic + "\"");
@@ -245,9 +244,6 @@ public class Server {
                 "to topic \"" + topic + "\"");
     }
 
-    private int writeToChannel(SocketChannel socketChannel, String message) throws IOException {
-        return socketChannel.write(CHARSET.encode(CharBuffer.wrap(message)));
-    }
 
     @Override
     public String toString() {

@@ -66,6 +66,19 @@
                 "group": "TPO4",
                 "order": 2
             }
+        },
+        {
+            "type": "java",
+            "name": "TPO4 Publisher",
+            "request": "launch",
+            "mainClass": "zad1.Publisher",
+            "projectName": "TPO4_PK_S20265",
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO4",
+                "order": 3
+            }
         }
     ],
     "compounds": [
@@ -74,7 +87,24 @@
             "configurations": [
                 "TPO4 Server",
                 "TPO4 Client"
-            ]
+            ],
+            "presentation": {
+                "hidden": false,
+                "group": "TPO4",
+                "order": 4
+            }
+        },
+        {
+            "name": "TPO4 Server/Publisher",
+            "configurations": [
+                "TPO4 Server",
+                "TPO4 Publisher"
+            ],
+            "presentation": {
+                "hidden": false,
+                "group": "TPO4",
+                "order": 5
+            }
         }
     ]
 }
