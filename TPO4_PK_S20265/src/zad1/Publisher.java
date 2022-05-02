@@ -1,85 +1,79 @@
 package zad1;
 
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Scanner;
-import static zad1.Server.HOST;
-import static zad1.Server.PORT;
-
-public class Publisher {
-
-    public static void main(String[] args) throws InterruptedException {
-        Thread.sleep(2000);
-        var topics = new ArrayList<>();
-        try (var socketChannel = SocketChannel.open()) {
-            socketChannel.configureBlocking(false);
-            socketChannel.connect(new InetSocketAddress(HOST, PORT));
-            System.out.println("(Publisher) Connecting to server...");
-
-            while (!socketChannel.finishConnect()) {
-                // progress bar or other operations until connected
-            }
-
-            System.out.println("(Publisher) Connected to server");
-
-            var charset = StandardCharsets.UTF_8;
-            var scanner = new Scanner(System.in);
-
-            // *** allocate the buffer ***
-            // allocateDirect allows for use of hardware mechanisms
-            // to speed up I/O operations
-            // the buffer should only be allocated *once* and reused
-
-            ByteBuffer inBuffer = ByteBuffer.allocateDirect(1024);
-            CharBuffer charBuffer;
-
-            System.out.println("(Publisher) Saying \"Hi\" to server");
-            socketChannel.write(charset.encode("Hi" + '\n'));
-
-            while (true) {
-                // clear the buffer
-                inBuffer.clear();
-
-                // read new data
-                int readBytes = socketChannel.read(inBuffer);
-
-                if (readBytes == 0) {
-                    // short term operations, eg. elapsed time
-                    continue;
-                }
-                if (readBytes == -1) {
-                    // means the channel is closed from server side
-                    break;
-                }
-
-                // if there's new data
-                inBuffer.flip();
-                charBuffer = charset.decode(inBuffer);
-                String fromServer = charBuffer.toString();
-
-                System.out.println("(Publisher) Got text from server: \"" + fromServer + "\"");
-                charBuffer.clear();
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 
-                // prepare response
-                String input = scanner.nextLine();
-                charBuffer = CharBuffer.wrap(input + '\n');
-                ByteBuffer outBuffer = charset.encode(charBuffer);
+public class Publisher extends Application {
+    @FXML
+    private Button publishButton;
 
-                // send response
-                socketChannel.write(outBuffer);
-                System.out.println("(Publisher) Writing to server: \"" + input + "\"");
+    @FXML
+    private ListView<String> topicView;
 
-            }
+    @FXML
+    private TextField topicField;
 
-            scanner.close();
+    @FXML
+    private Button unpublishButton;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static void main(String[] args) {
+        launch();
+    }
+
+    @FXML
+    public void addTopic(String topic) {
+        topicView.getItems().add(topic);
+    }
+
+    @FXML
+    public void removeTopic(String topic) {
+        topicView.getItems().remove(topic);
+    }
+
+    @FXML
+    public void publish(ActionEvent e) throws IOException {
+        String topic = topicField.getText();
+        String message = "PUBLISH;" + topic;
+        ChannelHelper.writeToChannel(PublisherTask.getSocketChannel(), message);
+        addTopic(topic);
+        System.out.println("published");
+    }
+
+    @FXML
+    public void unpublish(ActionEvent e) throws IOException {
+        String topic = topicView.getSelectionModel().getSelectedItem();
+        String message = "UNPUBLISH;" + topic;
+        ChannelHelper.writeToChannel(PublisherTask.getSocketChannel(), message);
+        removeTopic(topic);
+        System.out.println("unpublished");
+    }
+
+    @Override
+    public void init() throws Exception {
+        topicView = new ListView<>();
+        topicView.setItems(FXCollections.observableArrayList());
+        Thread.sleep(1000);
+        PublisherTask.setSocketChannel(SocketChannel.open());
+    }
+
+    @Override
+    public void start(Stage stage) throws IOException, InterruptedException {
+        Parent root = FXMLLoader.load(getClass().getResource("Publisher.fxml"));
+        stage.setScene(new Scene(root));
+        stage.show();
+
+        new Thread(new PublisherTask()).start();
     }
 }

@@ -79,6 +79,19 @@
                 "group": "TPO4",
                 "order": 3
             }
+        },
+        {
+            "type": "java",
+            "name": "TPO4 Publisher CLI",
+            "request": "launch",
+            "mainClass": "zad1.PublisherCli",
+            "projectName": "TPO4_PK_S20265",
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO4",
+                "order": 7
+            }
         }
     ],
     "compounds": [

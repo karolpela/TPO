@@ -1,28 +1,19 @@
 package zad1;
 
-import static zad1.Server.HOST;
-import static zad1.Server.PORT;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+import static zad1.Server.HOST;
+import static zad1.Server.PORT;
 
+public class PublisherCli {
 
-public class PublisherThread implements Runnable {
-
-    // private socketChannel;
-
-    // public PublisherThread(SocketChannel socketChannel) {
-    // this.socketChannel = socketChannel;
-    // }
-
-    @Override
-    public void run() {
-        try {
-            Thread.sleep(3000);
-            SocketChannel socketChannel = SocketChannel.open();
+    public static void main(String[] args) throws InterruptedException {
+        Thread.sleep(2000);
+        try (var socketChannel = SocketChannel.open()) {
             socketChannel.configureBlocking(false);
             socketChannel.connect(new InetSocketAddress(HOST, PORT));
             System.out.println("(Publisher) Connecting to server...");
@@ -34,7 +25,7 @@ public class PublisherThread implements Runnable {
             System.out.println("(Publisher) Connected to server");
 
             var charset = StandardCharsets.UTF_8;
-            // var scanner = new Scanner(System.in);
+            var scanner = new Scanner(System.in);
 
             // *** allocate the buffer ***
             // allocateDirect allows for use of hardware mechanisms
@@ -44,7 +35,7 @@ public class PublisherThread implements Runnable {
             ByteBuffer inBuffer = ByteBuffer.allocateDirect(1024);
             CharBuffer charBuffer;
 
-            System.out.println("(Client) Saying \"Hi\" to server");
+            System.out.println("(Publisher) Saying \"Hi\" to server");
             socketChannel.write(charset.encode("Hi" + '\n'));
 
             while (true) {
@@ -55,7 +46,6 @@ public class PublisherThread implements Runnable {
                 int readBytes = socketChannel.read(inBuffer);
 
                 if (readBytes == 0) {
-                    // means there's no data
                     // short term operations, eg. elapsed time
                     continue;
                 }
@@ -67,31 +57,27 @@ public class PublisherThread implements Runnable {
                 // if there's new data
                 inBuffer.flip();
                 charBuffer = charset.decode(inBuffer);
-                String response = charBuffer.toString();
+                String fromServer = charBuffer.toString();
 
-                System.out.println("(Client) Got text from server: \"" + response + "\"");
+                System.out.println("(Publisher) Got text from server: \"" + fromServer + "\"");
                 charBuffer.clear();
 
 
-                switch (response) {
-                    case "OK" -> {
-                        System.out.println("(Publisher) Topic successfully added");
-                        break;
-                    }
-                    case "ERROR" -> {
-                        System.out.println("(Publisher) Error adding topic!");
-                        break;
-                    }
+                // prepare response
+                String input = scanner.nextLine();
+                charBuffer = CharBuffer.wrap(input + '\n');
+                ByteBuffer outBuffer = charset.encode(charBuffer);
 
-                    default -> {
-                        System.out.println("No action specified for response \"" + response + "\"");
-                    }
-                }
+                // send response
+                socketChannel.write(outBuffer);
+                System.out.println("(Publisher) Writing to server: \"" + input + "\"");
+
             }
-        } catch (IOException e) {
+
+            scanner.close();
+
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 }
