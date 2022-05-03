@@ -113,7 +113,7 @@ public class Server {
         if (!socketChannel.isOpen())
             return;
 
-        System.out.println(this + " reading a client request...");
+        System.out.println(this + " Reading a client request...");
 
         // clear buffers
         bb.clear();
@@ -121,26 +121,20 @@ public class Server {
 
         // read request
 
-        boolean reading = true;
+        // boolean reading = true;
         try {
-            while (reading) {
-                int b = socketChannel.read(bb);
+            // while (reading) {
+            int b = socketChannel.read(bb);
 
-                // read until there's available data
-                if (b <= 0)
-                    continue;
+            // read until there's available data
+            if (b <= 0)
+                return;
 
-                bb.flip();
-                var charBuffer = CHARSET.decode(bb);
+            bb.flip();
+            var charBuffer = CHARSET.decode(bb);
 
-                while (charBuffer.hasRemaining()) {
-                    char c = charBuffer.get();
-                    if (c == '\r' || c == '\n') {
-                        reading = false;
-                        break;
-                    }
-                    sb.append(c);
-                }
+            while (charBuffer.hasRemaining()) {
+                sb.append(charBuffer.get());
             }
 
             var requestArray = sb.toString().split(";");
@@ -148,9 +142,11 @@ public class Server {
             String arguments = "";
             if (requestArray.length > 1) {
                 arguments = requestArray[1];
+                arguments = arguments.replace("\n", "").replace("\r", "");
             }
 
-            System.out.println(this + " got request: \"" + command + "\" " + arguments);
+            System.out.println(this + " Got request: " + command
+                    + (arguments.equals("") ? "" : " \"" + arguments + "\""));
 
             switch (command) {
                 case "Hi" -> {
@@ -175,8 +171,9 @@ public class Server {
                     handleUnsubRequest(socketChannel, arguments);
                 }
                 default -> {
+                    System.out.println("Command");
                     // echo
-                    writeToChannel(socketChannel, command);
+                    // writeToChannel(socketChannel, command);
                 }
             }
         } catch (IOException e) {
@@ -186,7 +183,7 @@ public class Server {
 
     private void sayByeAndDisconnect(SocketChannel socketChannel) throws IOException {
         writeToChannel(socketChannel, "Bye");
-        System.out.println(this + " saying \"Bye\" to client...");
+        System.out.println(this + " Saying \"Bye\" to client...");
 
         // close the channel and its socket
         socketChannel.close();
@@ -232,7 +229,9 @@ public class Server {
     private void unpublishAndNotifySubs(SocketChannel publisher, String arguments) {
         String topic = arguments;
         channelsByTopic.remove("key");
-        System.out.println(this + "Removed  topic \"" + topic + "\"");
+        // exclude handling of a nonexistent topic as requests
+        // use a predefined list to choose from
+        System.out.println(this + " Removed  topic \"" + topic + "\"");
 
         var allChannels = messagesByChannel.keySet();
         for (SocketChannel sc : allChannels) {

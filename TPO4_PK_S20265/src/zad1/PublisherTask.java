@@ -30,9 +30,7 @@ public class PublisherTask extends Task<Void> {
     @Override
     protected Void call() throws Exception {
         try {
-
-
-            System.out.println("(Publisher) Connected to server");
+            System.out.println(this + " Connected to server");
 
             var charset = StandardCharsets.UTF_8;
 
@@ -44,8 +42,8 @@ public class PublisherTask extends Task<Void> {
             ByteBuffer inBuffer = ByteBuffer.allocateDirect(1024);
             CharBuffer charBuffer;
 
-            System.out.println("(Publisher) Saying \"Hi\" to server");
-            socketChannel.write(charset.encode("Hi" + '\n'));
+            System.out.println(this + " Saying \"Hi\" to server");
+            socketChannel.write(charset.encode("Hi"));
 
             while (true) {
                 // clear the buffer
@@ -69,21 +67,34 @@ public class PublisherTask extends Task<Void> {
                 charBuffer = charset.decode(inBuffer);
                 String response = charBuffer.toString();
 
-                System.out.println("(Publisher) Got text from server: \"" + response + "\"");
+                System.out.println(this + " Got text from server: \"" + response + "\"");
                 charBuffer.clear();
 
-
                 switch (response) {
+                    case "Hi" -> {
+                        // System.out.println(this + " Server: Said hi");
+                        break;
+                    }
+                    case "ADD_TOPIC" -> {
+                        System.out.println(this + " Ignoring...");
+                        break;
+                    }
+                    case "REMOVE_TOPIC" -> {
+                        System.out.println(this + " Ignoring...");
+                        break;
+                    }
                     case "OK" -> {
-                        System.out.println("(Publisher) Topic successfully added");
+                        System.out.println(this + " Server: Topic successfully added");
                         break;
                     }
                     case "ERROR" -> {
-                        System.out.println("(Publisher) Error adding topic!");
+                        System.out.println(this + " Server: Error adding topic!");
                         break;
                     }
                     default -> {
-                        System.out.println("No action specified for response \"" + response + "\"");
+                        // System.out.println(
+                        // "No action specified for response \"" + response + "\""
+                        // );
                     }
                 }
             }
@@ -91,5 +102,10 @@ public class PublisherTask extends Task<Void> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "(Publisher Task)";
     }
 }

@@ -38,7 +38,7 @@ public class Client {
             CharBuffer charBuffer;
 
             System.out.println("(Client) Saying \"Hi\" to server");
-            socketChannel.write(charset.encode("Hi" + '\n'));
+            socketChannel.write(charset.encode("Hi"));
 
             while (true) {
                 // clear the buffer
@@ -48,6 +48,7 @@ public class Client {
                 int readBytes = socketChannel.read(inBuffer);
 
                 if (readBytes == 0) {
+                    // means there's no data
                     // short term operations, eg. elapsed time
                     continue;
                 }

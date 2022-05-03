@@ -32,8 +32,6 @@ public class Publisher extends Application {
     @FXML
     private ListView<String> topicView;
 
-    private ObservableList<String> topicList = FXCollections.observableArrayList();
-
     private SocketChannel toServer;
 
     public static void main(String[] args) {
@@ -56,7 +54,7 @@ public class Publisher extends Application {
         String message = "PUBLISH;" + topic;
         ChannelHelper.writeToChannel(toServer, message);
         addTopic(topic);
-        System.out.println("published");
+        System.out.println(this + " Published topic \"" + topic + "\"");
     }
 
     @FXML
@@ -65,24 +63,23 @@ public class Publisher extends Application {
         String message = "UNPUBLISH;" + topic;
         ChannelHelper.writeToChannel(toServer, message);
         removeTopic(topic);
-        System.out.println("unpublished");
+        System.out.println(this + " Unpublished topic \"" + topic + "\"");
     }
 
     public void initialize() throws IOException, InterruptedException {
-        topicList.addAll("a", "b", "c");
-        topicView.setItems(topicList);
+        topicView.setItems(FXCollections.observableArrayList());
 
-        // *** init socket channel and wait for connection *** //
-
+        // init socket channel and wait for connection
         Thread.sleep(1000);
         toServer = SocketChannel.open();
         toServer.configureBlocking(false);
         toServer.connect(new InetSocketAddress(HOST, PORT));
-        System.out.println("(Publisher) Connecting to server...");
+        System.out.println(this + " Connecting to server...");
 
         while (!toServer.finishConnect()) {
             // progress bar or other operations until connected
         }
+        new Thread(new PublisherTask(toServer)).start();
     }
 
     @Override
@@ -91,7 +88,10 @@ public class Publisher extends Application {
         stage.setTitle("Publisher");
         stage.setScene(new Scene(root));
         stage.show();
+    }
 
-        new Thread(new PublisherTask(toServer)).start();
+    @Override
+    public String toString() {
+        return "(Publisher)";
     }
 }

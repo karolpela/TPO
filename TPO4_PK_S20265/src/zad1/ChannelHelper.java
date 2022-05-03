@@ -13,6 +13,6 @@ public class ChannelHelper {
 
     public static int writeToChannel(SocketChannel socketChannel, String message)
             throws IOException {
-        return socketChannel.write(CHARSET.encode(CharBuffer.wrap(message) + "\n"));
+        return socketChannel.write(CHARSET.encode(CharBuffer.wrap(message)));
     }
 }
