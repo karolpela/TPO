@@ -84,11 +84,12 @@ public class PublisherTask extends Task<Void> {
                         break;
                     }
                     case "OK" -> {
-                        System.out.println(this + " Server: Topic successfully added");
+                        System.out.println(this + " Server: Requested successully handled");
                         break;
                     }
+
                     case "ERROR" -> {
-                        System.out.println(this + " Server: Error adding topic!");
+                        System.out.println(this + " Server: Error processing request!");
                         break;
                     }
                     default -> {

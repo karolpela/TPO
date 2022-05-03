@@ -120,10 +120,7 @@ public class Server {
         sb.setLength(0);
 
         // read request
-
-        // boolean reading = true;
         try {
-            // while (reading) {
             int b = socketChannel.read(bb);
 
             // read until there's available data
@@ -171,7 +168,7 @@ public class Server {
                     handleUnsubRequest(socketChannel, arguments);
                 }
                 default -> {
-                    System.out.println("Command");
+                    System.out.println(command);
                     // echo
                     // writeToChannel(socketChannel, command);
                 }

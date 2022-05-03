@@ -27,11 +27,18 @@ public class Publisher extends Application {
     private Button unpublishButton;
 
     @FXML
+    private Button sendButton;
+
+    @FXML
     private TextField topicField;
 
     @FXML
     private ListView<String> topicView;
 
+    @FXML
+    private TextField messageField;
+
+    // non-FXML fields
     private SocketChannel toServer;
 
     public static void main(String[] args) {
@@ -64,6 +71,19 @@ public class Publisher extends Application {
         ChannelHelper.writeToChannel(toServer, message);
         removeTopic(topic);
         System.out.println(this + " Unpublished topic \"" + topic + "\"");
+    }
+
+    @FXML
+    public void send(ActionEvent e) throws IOException {
+        String message = messageField.getText();
+        String topic = topicView.getSelectionModel().getSelectedItem();
+        if (topic == null) {
+            System.out.println(this + " Select a topic before sending a message!");
+            return;
+        }
+        message = "MESSAGE;" + topic + "`" + message;
+        ChannelHelper.writeToChannel(toServer, message);
+        System.out.println(this + " Sent message \"" + message + "\" on topic \"" + topic + "\"");
     }
 
     public void initialize() throws IOException, InterruptedException {
