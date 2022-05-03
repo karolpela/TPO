@@ -13,27 +13,23 @@ import static zad1.Server.PORT;
 
 public class PublisherTask extends Task<Void> {
 
-    private static SocketChannel socketChannel;
+    private SocketChannel socketChannel;
 
-    public static SocketChannel getSocketChannel() {
+    public SocketChannel getSocketChannel() {
         return socketChannel;
     }
 
-    public static void setSocketChannel(SocketChannel socketChannel) {
-        PublisherTask.socketChannel = socketChannel;
+    public void setSocketChannel(SocketChannel socketChannel) {
+        this.socketChannel = socketChannel;
+    }
+
+    public PublisherTask(SocketChannel socketChannel) {
+        this.socketChannel = socketChannel;
     }
 
     @Override
     protected Void call() throws Exception {
         try {
-            socketChannel.configureBlocking(false);
-            socketChannel.connect(new InetSocketAddress(HOST, PORT));
-            System.out.println("(Publisher) Connecting to server...");
-
-            while (!socketChannel.finishConnect()) {
-                // progress bar or other operations until connected
-            }
-            Thread.sleep(3000);
 
 
             System.out.println("(Publisher) Connected to server");
@@ -93,8 +89,6 @@ public class PublisherTask extends Task<Void> {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
         return null;
     }

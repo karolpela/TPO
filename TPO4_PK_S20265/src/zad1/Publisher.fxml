@@ -88,7 +88,7 @@
             <Button fx:id="publishButton" layoutX="379.0" layoutY="79.0" mnemonicParsing="false" onAction="#publish" prefHeight="25.0" prefWidth="70.0" text="Publish" textAlignment="JUSTIFY" />
             <Button fx:id="unpublishButton" layoutX="379.0" layoutY="217.0" mnemonicParsing="false" onAction="#unpublish" text="Unpublish" />
             <TextField fx:id="topicField" layoutX="160.0" layoutY="79.0" prefHeight="25.0" prefWidth="200.0" promptText="Topic" />
-            <ListView fx:id="publishedTopics" layoutX="160.0" layoutY="129.0" prefHeight="200.0" prefWidth="200.0" />
+            <ListView fx:id="topicView" layoutX="160.0" layoutY="129.0" prefHeight="200.0" prefWidth="200.0" />
       </children>
     </AnchorPane>
   </children>
