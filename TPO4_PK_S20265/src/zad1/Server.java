@@ -47,7 +47,7 @@ public class Server {
 
             System.out.println(this + " Waiting for connections...");
 
-            // *** main server loop *** //
+            // ==== main server loop ==== //
             while (true) {
                 // select a set of keys once there are ready ones
                 selector.select();
@@ -62,42 +62,54 @@ public class Server {
                     iterator.remove();
                     // if there's a new client connection
                     if (key.isAcceptable()) {
-                        System.out.println(this + " got a new connection");
-                        // create a channel to communicate with client
-                        // "accept() is non-blocking since client's already waiting"
-                        var socketChannel = serverSocketChannel.accept();
-
-                        // configure and register the channel
-                        socketChannel.configureBlocking(false);
-                        var clientKey = socketChannel.register(selector, OP_READ | OP_WRITE);
-
-                        // create a queue for this channel
-                        messagesByChannel.put((SocketChannel) clientKey.channel(),
-                                new LinkedBlockingQueue<>());
-
+                        accept(serverSocketChannel, selector);
                         continue;
                     }
 
                     // if there's a ready-to-read channel
                     if (key.isReadable()) {
-                        var socketChannel = (SocketChannel) key.channel();
-                        handleRequest(socketChannel);
+                        read(key);
                         continue;
                     }
 
                     // if there's a ready-to-write channel
                     if (key.isWritable()) {
-                        var socketChannel = (SocketChannel) key.channel();
-                        var queue = messagesByChannel.get(socketChannel);
-                        String message = queue.poll();
-                        if (message != null) {
-                            writeToChannel(socketChannel, message);
-                        }
+                        write(key);
                         continue;
                     }
                 }
             }
         }
+    }
+
+    private void write(SelectionKey key) throws IOException {
+        var socketChannel = (SocketChannel) key.channel();
+        var queue = messagesByChannel.get(socketChannel);
+        String message = queue.poll();
+        if (message != null) {
+            writeToChannel(socketChannel, message);
+        }
+    }
+
+    private void read(SelectionKey key) {
+        var socketChannel = (SocketChannel) key.channel();
+        handleRequest(socketChannel);
+    }
+
+    private void accept(ServerSocketChannel serverSocketChannel, Selector selector)
+            throws IOException {
+        System.out.println(this + " got a new connection");
+        // create a channel to communicate with client
+        // "accept() is non-blocking since client's already waiting"
+        var socketChannel = serverSocketChannel.accept();
+
+        // configure and register the channel
+        socketChannel.configureBlocking(false);
+        var clientKey = socketChannel.register(selector, OP_READ | OP_WRITE);
+
+        // create a queue for this channel
+        messagesByChannel.put((SocketChannel) clientKey.channel(),
+                new LinkedBlockingQueue<>());
     }
 
     // buffer configuration
