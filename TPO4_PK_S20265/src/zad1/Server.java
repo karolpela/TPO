@@ -49,6 +49,9 @@ public class Server {
 
             // ==== main server loop ==== //
             while (true) {
+                // reduce resource usage
+                Thread.sleep(500);
+
                 // select a set of keys once there are ready ones
                 selector.select();
                 Set<SelectionKey> keys = selector.selectedKeys();

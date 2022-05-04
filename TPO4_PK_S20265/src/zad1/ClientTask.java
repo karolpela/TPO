@@ -35,6 +35,9 @@ public class ClientTask extends Task<Void> {
             parent.toServer.write(charset.encode("Hi"));
 
             while (true) {
+                // reduce resource usage
+                Thread.sleep(500);
+
                 // clear the buffer
                 inBuffer.clear();
 
@@ -80,7 +83,9 @@ public class ClientTask extends Task<Void> {
                         continue;
                     }
                     case "ADD_TOPICS" -> {
-                        addTopics(arguments);
+                        if (arguments != null) {
+                            addTopics(arguments);
+                        }
                         continue;
                     }
                     case "REMOVE_TOPIC" -> {
@@ -113,6 +118,7 @@ public class ClientTask extends Task<Void> {
             for (String topic : topicArray) {
                 parent.availableView.getItems().add(topic);
                 System.out.println(this + " Added new topic \"" + topic + "\"");
+
             }
         });
     }
@@ -137,8 +143,7 @@ public class ClientTask extends Task<Void> {
                     parent.messageArea.setText(
                             parent.messageField.getText());
                 } else {
-                    parent.messageArea.setText(
-                            parent.messageArea.getText() + '\n' + parent.messageField.getText());
+                    parent.messageArea.appendText('\n' + parent.messageField.getText());
                 }
             }
             parent.messageField.setText(message);

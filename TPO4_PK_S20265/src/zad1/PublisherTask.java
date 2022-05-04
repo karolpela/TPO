@@ -43,6 +43,9 @@ public class PublisherTask extends Task<Void> {
             socketChannel.write(charset.encode("Hi"));
 
             while (true) {
+                // reduce resource usage
+                Thread.sleep(500);
+
                 // clear the buffer
                 inBuffer.clear();
 
