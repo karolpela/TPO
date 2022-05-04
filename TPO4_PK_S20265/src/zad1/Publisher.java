@@ -1,11 +1,13 @@
 package zad1;
 
+import static zad1.Server.HOST;
+import static zad1.Server.PORT;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,8 +17,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import static zad1.Server.HOST;
-import static zad1.Server.PORT;
 
 
 public class Publisher extends Application {
@@ -58,6 +58,8 @@ public class Publisher extends Application {
     @FXML
     public void publish(ActionEvent e) throws IOException {
         String topic = topicField.getText();
+        if (topicView.getItems().contains(topic))
+            return;
         String message = "PUBLISH;" + topic;
         ChannelHelper.writeToChannel(toServer, message);
         addTopic(topic);
@@ -87,7 +89,12 @@ public class Publisher extends Application {
     }
 
     public void initialize() throws IOException, InterruptedException {
+        // initialize topic view
         topicView.setItems(FXCollections.observableArrayList());
+
+        // disable send button in case of no topic selection
+        sendButton.disableProperty().bind(
+                Bindings.isNull(topicView.getSelectionModel().selectedItemProperty()));
 
         // init socket channel and wait for connection
         Thread.sleep(1000);

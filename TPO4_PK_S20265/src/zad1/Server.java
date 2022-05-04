@@ -125,8 +125,6 @@ public class Server {
         if (!socketChannel.isOpen())
             return;
 
-        System.out.println(this + " Reading a client request...");
-
         // clear buffers
         bb.clear();
         sb.setLength(0);
@@ -176,7 +174,7 @@ public class Server {
                 case "SUBSCRIBE" -> {
                     handleSubRequest(socketChannel, arguments);
                 }
-                case "UNSUBSRIBE" -> {
+                case "UNSUBSCRIBE" -> {
                     handleUnsubRequest(socketChannel, arguments);
                 }
                 default -> {
@@ -199,10 +197,23 @@ public class Server {
         socketChannel.socket().close();
     }
 
+    private void handleSubRequest(SocketChannel socketChannel, String arguments)
+            throws IOException {
+        String topic = arguments;
+        var channels = channelsByTopic.get(topic);
+        if (channels == null) {
+            channelsByTopic.put(topic, Arrays.asList(socketChannel));
+        } else {
+            channels.add(socketChannel);
+        }
+        writeToChannel(socketChannel,
+                "INFO;Successfully subscribed to \"" + topic + "\"");
+    }
+
     private void handleUnsubRequest(SocketChannel socketChannel, String arguments)
             throws IOException {
         String topic = arguments;
-        var channels = channelsByTopic.get("topic");
+        var channels = channelsByTopic.get(topic);
         if (channels == null) {
             writeToChannel(socketChannel, "No such topic \"" + topic + "\"");
         } else {
@@ -210,17 +221,7 @@ public class Server {
 
         }
         writeToChannel(socketChannel,
-                "Successfully unsubscribed from \"" + topic + "\"");
-    }
-
-    private void handleSubRequest(SocketChannel socketChannel, String arguments)
-            throws IOException {
-        String topic = arguments;
-        var channels = channelsByTopic.get("topic");
-        if (channels == null)
-            channelsByTopic.put(topic, Arrays.asList(socketChannel));
-        writeToChannel(socketChannel,
-                "Successfully subscribed to \"" + topic + "\"");
+                "INFO;Successfully unsubscribed from \"" + topic + "\"");
     }
 
     private void publishAndNotifySubs(SocketChannel publisher, String arguments) {
@@ -252,7 +253,7 @@ public class Server {
     private void registerAndNotifySubs(SocketChannel publisher, String arguments) {
         var argArray = arguments.split("`");
         String topic = argArray[0];
-        String message = argArray[1];
+        String message = "MESSAGE;" + argArray[1];
         var subscribers = channelsByTopic.get(topic);
         for (SocketChannel sc : subscribers) {
             messagesByChannel.get(sc).add(message);

@@ -2,14 +2,11 @@ package zad1;
 
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import javafx.concurrent.Task;
-import static zad1.Server.HOST;
-import static zad1.Server.PORT;
 
 public class PublisherTask extends Task<Void> {
 
@@ -67,7 +64,7 @@ public class PublisherTask extends Task<Void> {
                 charBuffer = charset.decode(inBuffer);
                 String response = charBuffer.toString();
 
-                System.out.println(this + " Got text from server: \"" + response + "\"");
+                System.out.println(this + " Server: \"" + response + "\"");
                 charBuffer.clear();
 
                 switch (response) {
@@ -84,10 +81,9 @@ public class PublisherTask extends Task<Void> {
                         break;
                     }
                     case "OK" -> {
-                        System.out.println(this + " Server: Requested successully handled");
+                        System.out.println(this + " Server: Request successully handled");
                         break;
                     }
-
                     case "ERROR" -> {
                         System.out.println(this + " Server: Error processing request!");
                         break;

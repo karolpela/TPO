@@ -1,113 +1,106 @@
 package zad1;
 
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Scanner;
 import static zad1.Server.HOST;
 import static zad1.Server.PORT;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
+import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
-public class Client {
+public class Client extends Application {
 
-    public static void main(String[] args) throws InterruptedException {
-        Thread.sleep(2000);
-        var topics = new ArrayList<>();
-        try (var socketChannel = SocketChannel.open()) {
-            socketChannel.configureBlocking(false);
-            socketChannel.connect(new InetSocketAddress(HOST, PORT));
-            System.out.println("(Client) Connecting to server...");
+    @FXML
+    protected ListView<String> availableView;
 
-            while (!socketChannel.finishConnect()) {
-                // progress bar or other operations until connected
-            }
+    @FXML
+    protected ListView<String> subscribedView;
 
-            System.out.println("(Client) Connected to server");
+    @FXML
+    private Button subscribeButton;
 
-            var charset = StandardCharsets.UTF_8;
-            var scanner = new Scanner(System.in);
+    @FXML
+    private Button unsubscribeButton;
 
-            // *** allocate the buffer ***
-            // allocateDirect allows for use of hardware mechanisms
-            // to speed up I/O operations
-            // the buffer should only be allocated *once* and reused
+    @FXML
+    protected TextArea messageArea;
 
-            ByteBuffer inBuffer = ByteBuffer.allocateDirect(1024);
-            CharBuffer charBuffer;
+    @FXML
+    protected TextField messageField;
 
-            System.out.println("(Client) Saying \"Hi\" to server");
-            socketChannel.write(charset.encode("Hi"));
+    // non-FXML fields
 
-            while (true) {
-                // clear the buffer
-                inBuffer.clear();
+    protected SocketChannel toServer;
 
-                // read new data
-                int readBytes = socketChannel.read(inBuffer);
+    @FXML
+    public void subscribe(ActionEvent e) throws IOException {
+        String topic = availableView.getSelectionModel().getSelectedItem();
+        String message = "SUBSCRIBE;" + topic;
+        ChannelHelper.writeToChannel(toServer, message);
+        subscribedView.getItems().add(topic);
+        availableView.getItems().remove(topic);
+        System.out.println(this + " Subscribed to \"" + topic + "\"");
+    }
 
-                if (readBytes == 0) {
-                    // means there's no data
-                    // short term operations, eg. elapsed time
-                    continue;
-                }
-                if (readBytes == -1) {
-                    // means the channel is closed from server side
-                    break;
-                }
+    @FXML
+    public void unsubscribe(ActionEvent e) throws IOException {
+        String topic = subscribedView.getSelectionModel().getSelectedItem();
+        String message = "UNSUBSCRIBE;" + topic;
+        ChannelHelper.writeToChannel(toServer, message);
+        subscribedView.getItems().remove(topic);
+        availableView.getItems().add(topic);
+        System.out.println(this + " Unsubscribed from \"" + topic + "\"");
 
-                // if there's new data
-                inBuffer.flip();
-                charBuffer = charset.decode(inBuffer);
-                String fromServer = charBuffer.toString();
-                var fromServerArray = fromServer.split(";");
+    }
 
-                System.out.println("(Client) Got text from server: \"" + fromServer + "\"");
-                charBuffer.clear();
+    public void initialize() throws IOException, InterruptedException {
+        // initialize lists and views
+        ObservableList<String> availableList = FXCollections.observableArrayList();
+        ObservableList<String> subscribedList = FXCollections.observableArrayList();
+        availableView.setItems(availableList);
+        subscribedView.setItems(subscribedList);
 
-                String command = fromServerArray[0];
-                String arguments = null;
-                if (fromServerArray.length > 1) {
-                    arguments = fromServerArray[1];
-                }
+        // disable buttons in case of no selection
+        subscribeButton.disableProperty().bind(
+                Bindings.isNull(availableView.getSelectionModel().selectedItemProperty()));
+        unsubscribeButton.disableProperty().bind(
+                Bindings.isNull(subscribedView.getSelectionModel().selectedItemProperty()));
 
-                switch (command) {
-                    case "Bye" -> {
-                        break;
-                    }
-                    case "ADD_TOPIC" -> {
-                        String topic = arguments;
-                        topics.add(topic);
-                        System.out.println("(Client) Added new topic \"" + topic + "\"");
-                    }
-                    case "REMOVE_TOPIC" -> {
-                        String topic = arguments;
-                        topics.remove(topic);
-                        System.out.println("(Client) Removed topic \"" + topic + "\"");
+        // initialize socket channel and wait for connection
+        Thread.sleep(1000);
+        toServer = SocketChannel.open();
+        toServer.configureBlocking(false);
+        toServer.connect(new InetSocketAddress(HOST, PORT));
+        System.out.println(this + " Connecting to server...");
 
-                    }
-                    default -> {
-                        System.out.println(
-                                "(Client) No action specified for command \"" + command + "\"");
-                    }
-                }
-
-                // prepare response
-                String input = scanner.nextLine();
-                charBuffer = CharBuffer.wrap(input + '\n');
-                ByteBuffer outBuffer = charset.encode(charBuffer);
-
-                // send response
-                socketChannel.write(outBuffer);
-                System.out.println("(Client) Writing to server: \"" + input + "\"");
-
-            }
-
-            scanner.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (!toServer.finishConnect()) {
+            // progress bar or other operations until connected
         }
+        new Thread(new ClientTask(this)).start();
+    }
+
+    @Override
+    public void start(Stage stage) throws IOException, InterruptedException {
+        Parent root = FXMLLoader.load(getClass().getResource("Client.fxml"));
+        stage.setTitle("Client");
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
+    @Override
+    public String toString() {
+        return "(Client)"; // maybe add singleton id
     }
 }
