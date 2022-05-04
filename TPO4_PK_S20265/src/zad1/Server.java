@@ -29,11 +29,11 @@ public class Server {
     private static HashMap<String, List<SocketChannel>> channelsByTopic = new HashMap<>();
     private static HashMap<SocketChannel, Queue<String>> messagesByChannel = new HashMap<>();
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         new Server();
     }
 
-    Server() throws IOException {
+    Server() throws IOException, InterruptedException {
         try (var serverSocketChannel = ServerSocketChannel.open()) {
             // create server socket channel and bind to specified address
             serverSocketChannel.bind(new InetSocketAddress(HOST, PORT));
@@ -82,7 +82,7 @@ public class Server {
         }
     }
 
-    private void write(SelectionKey key) throws IOException {
+    private void write(SelectionKey key) throws IOException, InterruptedException {
         var socketChannel = (SocketChannel) key.channel();
         var queue = messagesByChannel.get(socketChannel);
         String message = queue.poll();
@@ -97,7 +97,7 @@ public class Server {
     }
 
     private void accept(ServerSocketChannel serverSocketChannel, Selector selector)
-            throws IOException {
+            throws IOException, InterruptedException {
         System.out.println(this + " got a new connection");
         // create a channel to communicate with client
         // "accept() is non-blocking since client's already waiting"
@@ -108,8 +108,18 @@ public class Server {
         var clientKey = socketChannel.register(selector, OP_READ | OP_WRITE);
 
         // create a queue for this channel
-        messagesByChannel.put((SocketChannel) clientKey.channel(),
-                new LinkedBlockingQueue<>());
+        var clientQueue = new LinkedBlockingQueue<String>();
+        messagesByChannel.put((SocketChannel) clientKey.channel(), clientQueue);
+
+        // send a list of available topics
+        var topics = channelsByTopic.keySet();
+        if (!topics.isEmpty()) {
+            String message = "ADD_TOPICS;";
+            for (String topic : topics) {
+                message += topic + '`';
+            }
+            clientQueue.put(message);
+        }
     }
 
     // buffer configuration

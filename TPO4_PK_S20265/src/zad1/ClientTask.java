@@ -4,13 +4,9 @@ package zad1;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 
 public class ClientTask extends Task<Void> {
 
@@ -23,13 +19,6 @@ public class ClientTask extends Task<Void> {
     @Override
     protected Void call() throws Exception {
         try {
-            // initialize fields
-            SocketChannel socketChannel = parent.toServer;
-            List<String> availableList = parent.availableView.getItems();
-            List<String> subscribedList = parent.subscribedView.getItems();
-            TextArea messageArea = parent.messageArea;
-            TextField messageField = parent.messageField;
-
             System.out.println(this + " Connected to server");
 
             var charset = StandardCharsets.UTF_8;
@@ -43,14 +32,14 @@ public class ClientTask extends Task<Void> {
             CharBuffer charBuffer;
 
             System.out.println(this + " Saying \"Hi\" to server");
-            socketChannel.write(charset.encode("Hi"));
+            parent.toServer.write(charset.encode("Hi"));
 
             while (true) {
                 // clear the buffer
                 inBuffer.clear();
 
                 // read new data
-                int readBytes = socketChannel.read(inBuffer);
+                int readBytes = parent.toServer.read(inBuffer);
 
                 if (readBytes == 0) {
                     // means there's no data
@@ -79,53 +68,31 @@ public class ClientTask extends Task<Void> {
 
                 switch (command) {
                     case "Bye" -> {
+                        System.out.println(this + " Disconnecting...");
                         break;
                     }
                     case "MESSAGE" -> {
-                        String message = arguments;
-                        Platform.runLater(() -> {
-                            if (!messageField.getText().equals("")) {
-                                if (messageArea.getText().equals("")) {
-                                    messageArea.setText(
-                                            messageField.getText());
-                                } else {
-                                    messageArea.setText(
-                                            messageArea.getText() + '\n' + messageField.getText());
-                                }
-                            }
-                            messageField.setText(message);
-                        });
-                        System.out.println("(Client) Got new message \"" + message + "\"");
+                        handleMessage(arguments);
                         continue;
                     }
                     case "ADD_TOPIC" -> {
-                        String topic = arguments;
-                        Platform.runLater(() -> {
-                            availableList.add(topic);
-                        });
-                        System.out.println("(Client) Added new topic \"" + topic + "\"");
+                        addTopic(arguments);
+                        continue;
+                    }
+                    case "ADD_TOPICS" -> {
+                        addTopics(arguments);
                         continue;
                     }
                     case "REMOVE_TOPIC" -> {
-                        String topic = arguments;
-                        Platform.runLater(() -> {
-                            // remove from available
-                            availableList.remove(topic);
-                            System.out.println("(Client) Removed topic \"" + topic + "\"");
-
-                            // unsubscribe
-                            subscribedList.remove(topic);
-                            System.out.println("(Client) Unsubscribed from topic \""
-                                    + topic + "\"");
-                        });
+                        removeTopic(arguments);
                         continue;
                     }
                     case "INFO" -> {
-                        System.out.println("(Client) Info from server: \"" + arguments + "\"");
+                        System.out.println(this + " Info from server: \"" + arguments + "\"");
                     }
                     default -> {
                         System.out.println(
-                                "(Client) No action specified for command \"" + command + "\"");
+                                this + " No action specified for command \"" + command + "\"");
                     }
                 }
             }
@@ -133,6 +100,50 @@ public class ClientTask extends Task<Void> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void addTopic(String topic) {
+        Platform.runLater(() -> parent.availableView.getItems().add(topic));
+        System.out.println(this + " Added new topic \"" + topic + "\"");
+    }
+
+    private void addTopics(String topics) {
+        var topicArray = topics.split("`");
+        Platform.runLater(() -> {
+            for (String topic : topicArray) {
+                parent.availableView.getItems().add(topic);
+                System.out.println(this + " Added new topic \"" + topic + "\"");
+            }
+        });
+    }
+
+    private void removeTopic(String topic) {
+        Platform.runLater(() -> {
+            // remove from available
+            parent.availableView.getItems().remove(topic);
+            System.out.println(this + " Removed topic \"" + topic + "\"");
+
+            // unsubscribe
+            parent.subscribedView.getItems().remove(topic);
+            System.out.println(this + " Unsubscribed from topic \""
+                    + topic + "\"");
+        });
+    }
+
+    private void handleMessage(String message) {
+        Platform.runLater(() -> {
+            if (!parent.messageField.getText().equals("")) {
+                if (parent.messageArea.getText().equals("")) {
+                    parent.messageArea.setText(
+                            parent.messageField.getText());
+                } else {
+                    parent.messageArea.setText(
+                            parent.messageArea.getText() + '\n' + parent.messageField.getText());
+                }
+            }
+            parent.messageField.setText(message);
+        });
+        System.out.println(this + " Got new message \"" + message + "\"");
     }
 
     @Override
