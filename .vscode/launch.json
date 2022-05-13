@@ -92,7 +92,14 @@
                 "group": "TPO4",
                 "order": 7
             }
-        }
+        },
+        {
+            "type": "java",
+            "name": "TPO5",
+            "request": "launch",
+            "mainClass": "zad1.Main",
+            "projectName": "TPO5_PK_S20265"
+        },
     ],
     "compounds": [
         {

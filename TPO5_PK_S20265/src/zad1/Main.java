@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) throws SQLException, IOException {
-        var database = new Database("jdbc:derby://localhost/traveldb");
+        var database = new Database("jdbc:derby://localhost/cardb");
         database.create();
     }
 }
