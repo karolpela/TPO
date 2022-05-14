@@ -7,5 +7,6 @@
         "io.micrometer.shaded.*",
         "java.awt.*"
     ],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

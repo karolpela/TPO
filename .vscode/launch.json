@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch Main",
+            "request": "launch",
+            "mainClass": "main.java.zad1.Main",
+            "projectName": "TPO5_PK_S20265"
+        },
+        {
+            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
@@ -99,7 +106,7 @@
             "request": "launch",
             "mainClass": "zad1.Main",
             "projectName": "TPO5_PK_S20265"
-        },
+        }
     ],
     "compounds": [
         {

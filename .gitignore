@@ -25,3 +25,6 @@ hs_err_pid*
 # local files
 /.metadata/
 */bin/
+
+# Maven files
+*/target/
