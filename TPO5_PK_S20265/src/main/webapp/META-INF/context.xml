@@ -1,0 +1,11 @@
+<Context>
+    <Resource name="jdbc/cardb" auth="Container"
+    type = "javax.sql.DataSource"
+    description = "Car database"
+    driverClassName = "org.apache.derby.jdbc.ClientDriver"
+    url = "jdbc:derby://localhost/cardb"
+    username="APP"
+    password="APP"
+    maxActive="20"
+    />
+</Context>
