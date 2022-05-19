@@ -6,6 +6,6 @@
     url = "jdbc:derby://localhost/cardb"
     username="APP"
     password="APP"
-    maxActive="20"
+    maxTotal="20"
     />
 </Context>
