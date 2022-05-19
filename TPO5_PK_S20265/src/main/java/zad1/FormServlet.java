@@ -4,7 +4,6 @@ package zad1;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.UnsupportedCharsetException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,7 +24,7 @@ public class FormServlet extends HttpServlet {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        resp.setContentType("text/html");
+        resp.setContentType("text/html; charset=utf-8");
 
         try (PrintWriter out = resp.getWriter()) {
             out.println("<html>");
@@ -35,16 +34,13 @@ public class FormServlet extends HttpServlet {
 
             out.println("<body>");
 
-            out.println("<center><h1> Car database interface </h1></center>");
+            out.println("<center><h1>Car database interface</h1></center>");
             out.print("<form method = \"POST\""
-                    + "form action=\"http://localhost:8080/TPO5/ResponseServlet\"");
-            out.print("RequestParamExample\" ");
-            out.println("method=POST>");
+                    + "form action=\"http://localhost:8080/TPO5/form\">");
             out.println("Rodzaj:");
             out.println("<input type=text size=20 name=rodzaj>");
             out.println("<br>");
             out.println("<input type=submit>");
-            out.println("</form>");
 
             String rodzaj = req.getParameter("rodzaj");
 
@@ -52,6 +48,13 @@ public class FormServlet extends HttpServlet {
                 printEndTag(out);
                 return;
             }
+
+            out.println("<p>Request parameter: ");
+            out.println(rodzaj);
+            out.println("</p>");
+
+            RequestDispatcher disp = getServletContext().getRequestDispatcher("/table");
+            disp.include(req, resp);
 
             printEndTag(out);
         } catch (IOException e) {
