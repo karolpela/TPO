@@ -2,6 +2,7 @@ package zad1;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,8 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
-public class ResponseServlet extends HttpServlet {
+public class TableServlet extends HttpServlet {
     DataSource dataSource;
+    private static final String CHARSET = "UTF-8";
 
     @Override
     public void init() throws ServletException {
@@ -32,9 +34,16 @@ public class ResponseServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+
+        try {
+            req.setCharacterEncoding(CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
         resp.setContentType("text/html; charset=utf-8");
         PrintWriter out = resp.getWriter();
-        out.println("<h1> Car database </h1>");
+        out.println("<h2> Car database </h2>");
 
         Connection con = null;
         try {
@@ -42,8 +51,10 @@ public class ResponseServlet extends HttpServlet {
                 con = dataSource.getConnection();
             }
             try (Statement stmt = con.createStatement()) {
-                ResultSet rs = stmt.executeQuery("SELECT * FROM Cars");
-                out.println("<ol>");
+                String reqRodzaj = req.getParameter("rodzaj");
+                ResultSet rs = stmt.executeQuery(
+                        "SELECT * FROM Cars WHERE Rodzaj=\'" + reqRodzaj + "\'");
+                out.println("<ul>");
                 while (rs.next()) {
                     int id = rs.getInt("IdCar");
                     String rodzaj = rs.getString("Rodzaj");
@@ -54,6 +65,7 @@ public class ResponseServlet extends HttpServlet {
                             + id + " " + rodzaj + " " + marka + " " + model + " " + rok
                             + "</li>");
                 }
+                out.println("</ul>");
             }
         } catch (Exception e) {
             out.println(e.getMessage());
@@ -66,5 +78,25 @@ public class ResponseServlet extends HttpServlet {
             }
         }
         out.close();
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, ServletException {
+        try {
+            service(req, resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, ServletException {
+        try {
+            service(req, resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
