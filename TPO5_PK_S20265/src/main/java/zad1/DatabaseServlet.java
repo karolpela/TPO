@@ -10,7 +10,6 @@ public class DatabaseServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // TODO Auto-generated method stub
-        super.service(req, resp);
+        // TODO generate a fancy dropdown "rodzaj" selection
     }
 }
