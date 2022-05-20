@@ -49,21 +49,6 @@ public class DatabaseServlet extends HttpServlet {
             var servletContext = getServletContext();
             servletContext.setAttribute("rodzajList", rodzajList);
 
-            // // Get headers to generate table dynamically
-            // List<String> columnList = new ArrayList<>();
-
-            // // Apparently it is not needed to register the databaseMetaData tool
-            // // to obtain column names, even though documentation suggests it
-            // // https://db.apache.org/derby/docs/10.14/tools/rtoolsoptdbmetadata.html
-            // DatabaseMetaData dbmd = con.getMetaData();
-            // ResultSet rs = dbmd.getColumns(null, null, "CARS", null);
-
-            // while (rs.next()) {
-            // columnList.add(rs.getString("COLUMN_NAME"));
-            // }
-
-            // servletContext.setAttribute("columnList", columnList);
-
         } catch (NamingException e) {
             throw new ServletException("Unable to lookup java:comp/env/jdbc/cardb", e);
         } catch (SQLException e) {
@@ -108,35 +93,24 @@ public class DatabaseServlet extends HttpServlet {
 
                 List<String[]> tableData = new ArrayList<>();
 
-                // out.println("<table>");
 
                 // Create header row
-                // out.println("<tr>");
-
-                // tableData.add(new String[columnCount]);
                 List<String> tableHeaders = new ArrayList<>();
 
                 for (int i = 0; i < columnCount; i++) {
-                    // out.println("<th>" + rsmd.getColumnName(i + 1) + "</th>");
                     tableHeaders.add(rsmd.getColumnName(i + 1));
                 }
-                getServletContext().setAttribute("tableHeaders", tableHeaders);
-
-                // out.println("</tr>");
+                req.setAttribute("tableHeaders", tableHeaders);
 
                 // Create table row for each row in result set
                 while (rs.next()) {
                     String[] row = new String[columnCount];
-                    // out.println("<tr>");
                     for (int i = 0; i < columnCount; i++) {
-                        // out.println("<td>" + rs.getString(i + 1) + "</td>");
                         row[i] = rs.getString(i + 1);
                     }
                     tableData.add(row);
-                    // out.println("</tr>");
                 }
-                // out.println("</table>");
-                getServletContext().setAttribute("tableData", tableData);
+                req.setAttribute("tableData", tableData);
             }
         } catch (Exception e) {
             out.println(e.getMessage());

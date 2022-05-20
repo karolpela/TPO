@@ -49,9 +49,9 @@ public class TableServlet extends HttpServlet {
         dbDispatcher.include(req, resp);
 
         @SuppressWarnings("unchecked")
-        List<String> tableHeaders = (List<String>) getServletContext().getAttribute("tableHeaders");
+        List<String> tableHeaders = (List<String>) req.getAttribute("tableHeaders");
         @SuppressWarnings("unchecked")
-        List<String[]> tableData = (List<String[]>) getServletContext().getAttribute("tableData");
+        List<String[]> tableData = (List<String[]>) req.getAttribute("tableData");
 
 
         out.println("<table>");
@@ -74,44 +74,6 @@ public class TableServlet extends HttpServlet {
         }
 
         out.println("</table>");
-
-
-        // Connection con = null;
-        // try {
-        // synchronized (dataSource) {
-        // con = dataSource.getConnection();
-        // }
-        // try (Statement stmt = con.createStatement()) {
-        // String reqRodzaj = req.getParameter("rodzaj");
-
-        // // Get all cars of requested type
-        // ResultSet rs = stmt.executeQuery(
-        // "SELECT * FROM Cars WHERE Rodzaj=\'" + reqRodzaj + "\'");
-
-        // // Get metadata to create table dynamically
-        // ResultSetMetaData rsmd = rs.getMetaData();
-        // int columnCount = rsmd.getColumnCount();
-        // out.println("<table>");
-
-        // // Create header row
-        // out.println("<tr>");
-        // for (int i = 0; i < columnCount; i++) {
-        // out.println("<th>" + rsmd.getColumnName(i + 1) + "</th>");
-        // }
-        // out.println("</tr>");
-
-        // // Create table row for each row in result set
-        // while (rs.next()) {
-        // out.println("<tr>");
-        // for (int i = 0; i < columnCount; i++) {
-        // out.println("<td>" + rs.getString(i + 1) + "</td>");
-        // }
-        // out.println("</tr>");
-        // }
-        // out.println("</table>");
-
-        // }
-
     }
 
     @Override

@@ -25,12 +25,6 @@ public class FormServlet extends HttpServlet {
         }
         resp.setContentType("text/html; charset=utf-8");
 
-        // include database servlet to initialize context attributes
-        // if (getServletContext().getAttribute("rodzajList") == null) {
-        //     var dbDispatcher = getServletContext().getRequestDispatcher("/database");
-        //     dbDispatcher.include(req, resp);
-        // }
-
         try (PrintWriter out = resp.getWriter()) {
 
             out.println("<html>");
