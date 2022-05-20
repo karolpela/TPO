@@ -1,8 +1,11 @@
 package zad1;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ public class DatabaseServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         Connection con = null;
+
         try {
             Context initContext = new InitialContext();
             Context envContext = (Context) initContext.lookup("java:comp/env");
@@ -33,15 +37,32 @@ public class DatabaseServlet extends HttpServlet {
                 con = dataSource.getConnection();
             }
 
+            // Get all the possible "Rodzaj" values
             List<String> rodzajList = new ArrayList<>();
             try (Statement stmt = con.createStatement()) {
-                ResultSet rs = stmt.executeQuery("SELECT DISTINCT Rodzaj FROM Cars");
+                ResultSet rs = stmt.executeQuery("SELECT DISTINCT RODZAJ FROM CARS");
                 while (rs.next()) {
                     rodzajList.add(rs.getString("Rodzaj"));
                 }
             }
+
             var servletContext = getServletContext();
             servletContext.setAttribute("rodzajList", rodzajList);
+
+            // // Get headers to generate table dynamically
+            // List<String> columnList = new ArrayList<>();
+
+            // // Apparently it is not needed to register the databaseMetaData tool
+            // // to obtain column names, even though documentation suggests it
+            // // https://db.apache.org/derby/docs/10.14/tools/rtoolsoptdbmetadata.html
+            // DatabaseMetaData dbmd = con.getMetaData();
+            // ResultSet rs = dbmd.getColumns(null, null, "CARS", null);
+
+            // while (rs.next()) {
+            // columnList.add(rs.getString("COLUMN_NAME"));
+            // }
+
+            // servletContext.setAttribute("columnList", columnList);
 
         } catch (NamingException e) {
             throw new ServletException("Unable to lookup java:comp/env/jdbc/cardb", e);
@@ -60,6 +81,94 @@ public class DatabaseServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // TODO generate a fancy dropdown "rodzaj" selection
+        // if (req.getDispatcherType() != DispatcherType.INCLUDE)
+        // return;
+        try {
+            req.setCharacterEncoding(CHARSET);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        resp.setContentType("text/html; charset=utf-8");
+        PrintWriter out = resp.getWriter();
+        Connection con = null;
+        try {
+            synchronized (dataSource) {
+                con = dataSource.getConnection();
+            }
+            try (Statement stmt = con.createStatement()) {
+                String reqRodzaj = req.getParameter("rodzaj");
+                // Get all cars of requested type
+                ResultSet rs =
+                        stmt.executeQuery("SELECT * FROM Cars WHERE Rodzaj=\'" + reqRodzaj + "\'");
+
+                // Get metadata to create table dynamically
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int columnCount = rsmd.getColumnCount();
+
+                List<String[]> tableData = new ArrayList<>();
+
+                // out.println("<table>");
+
+                // Create header row
+                // out.println("<tr>");
+
+                // tableData.add(new String[columnCount]);
+                List<String> tableHeaders = new ArrayList<>();
+
+                for (int i = 0; i < columnCount; i++) {
+                    // out.println("<th>" + rsmd.getColumnName(i + 1) + "</th>");
+                    tableHeaders.add(rsmd.getColumnName(i + 1));
+                }
+                getServletContext().setAttribute("tableHeaders", tableHeaders);
+
+                // out.println("</tr>");
+
+                // Create table row for each row in result set
+                while (rs.next()) {
+                    String[] row = new String[columnCount];
+                    // out.println("<tr>");
+                    for (int i = 0; i < columnCount; i++) {
+                        // out.println("<td>" + rs.getString(i + 1) + "</td>");
+                        row[i] = rs.getString(i + 1);
+                    }
+                    tableData.add(row);
+                    // out.println("</tr>");
+                }
+                // out.println("</table>");
+                getServletContext().setAttribute("tableData", tableData);
+            }
+        } catch (Exception e) {
+            out.println(e.getMessage());
+        } finally {
+            try {
+                if (con != null)
+                    con.close();
+            } catch (SQLException sqle) {
+                out.println(sqle.getMessage());
+            }
+        }
+        // out.close();
+    }
+
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, ServletException {
+        try {
+            service(req, resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException, ServletException {
+        try {
+            service(req, resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

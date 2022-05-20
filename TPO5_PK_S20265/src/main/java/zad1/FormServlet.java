@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 public class FormServlet extends HttpServlet {
 
     private static final String CHARSET = "UTF-8";
-
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
@@ -27,6 +25,12 @@ public class FormServlet extends HttpServlet {
         }
         resp.setContentType("text/html; charset=utf-8");
 
+        // include database servlet to initialize context attributes
+        // if (getServletContext().getAttribute("rodzajList") == null) {
+        //     var dbDispatcher = getServletContext().getRequestDispatcher("/database");
+        //     dbDispatcher.include(req, resp);
+        // }
+
         try (PrintWriter out = resp.getWriter()) {
 
             out.println("<html>");
@@ -36,17 +40,21 @@ public class FormServlet extends HttpServlet {
 
             out.println("<body>");
 
-            out.println("<center><h1>Car database interface</h1></center>");
+            out.println("<h1>Car database interface</h1>");
 
             var servletContext = getServletContext();
+
+            // Get a list of possible "Rodzaj" selections
+            @SuppressWarnings("unchecked")
             List<String> rodzajList = (List<String>) servletContext.getAttribute("rodzajList");
 
+            // Create a drop-down selector
             out.print("<form method = \"POST\""
                     + " action=\"http://localhost:8080/TPO5/form\"");
             out.println("<label for=\"rodzaj\"> Wybierz rodzaj: </label>");
             out.println("<select name=\"rodzaj\" id=\"rodzaj\">");
 
-
+            // Add options to the selector
             for (String rodzaj : rodzajList) {
                 out.println("<option value=\"" + rodzaj + "\">" + rodzaj + "</option>");
             }
@@ -55,15 +63,15 @@ public class FormServlet extends HttpServlet {
             out.println("<input type=submit value=\"Wyślij\"/>");
             out.println("</form>");
 
-            String rodzaj = req.getParameter("rodzaj");
-
-            if (rodzaj == null) {
+            String reqRodzaj = req.getParameter("rodzaj");
+            if (reqRodzaj == null) {
                 printEndTag(out);
                 return;
             }
 
-            RequestDispatcher disp = getServletContext().getRequestDispatcher("/table");
-            disp.include(req, resp);
+            // Get table headers
+            var tableDispatcher = getServletContext().getRequestDispatcher("/table");
+            tableDispatcher.include(req, resp);
 
             printEndTag(out);
         } catch (IOException e) {

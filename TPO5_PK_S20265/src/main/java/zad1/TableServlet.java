@@ -3,10 +3,7 @@ package zad1;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.List;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -43,41 +40,78 @@ public class TableServlet extends HttpServlet {
 
         resp.setContentType("text/html; charset=utf-8");
         PrintWriter out = resp.getWriter();
-        out.println("<h2> Car database </h2>");
 
-        Connection con = null;
-        try {
-            synchronized (dataSource) {
-                con = dataSource.getConnection();
-            }
-            try (Statement stmt = con.createStatement()) {
-                String reqRodzaj = req.getParameter("rodzaj");
-                ResultSet rs = stmt.executeQuery(
-                        "SELECT * FROM Cars WHERE Rodzaj=\'" + reqRodzaj + "\'");
-                out.println("<ul>");
-                while (rs.next()) {
-                    int id = rs.getInt("IdCar");
-                    String rodzaj = rs.getString("Rodzaj");
-                    String marka = rs.getString("Marka");
-                    String model = rs.getString("Model");
-                    int rok = rs.getInt("Rok");
-                    out.println("<li>"
-                            + id + " " + rodzaj + " " + marka + " " + model + " " + rok
-                            + "</li>");
-                }
-                out.println("</ul>");
-            }
-        } catch (Exception e) {
-            out.println(e.getMessage());
-        } finally {
-            try {
-                if (con != null)
-                    con.close();
-            } catch (SQLException sqle) {
-                out.println(sqle.getMessage());
-            }
+
+        // String reqRodzaj = req.getParameter("rodzaj");
+
+        // Get table headers
+        var dbDispatcher = getServletContext().getRequestDispatcher("/database");
+        dbDispatcher.include(req, resp);
+
+        @SuppressWarnings("unchecked")
+        List<String> tableHeaders = (List<String>) getServletContext().getAttribute("tableHeaders");
+        @SuppressWarnings("unchecked")
+        List<String[]> tableData = (List<String[]>) getServletContext().getAttribute("tableData");
+
+
+        out.println("<table>");
+
+        // Create header row
+        out.println("<tr>");
+        for (String header : tableHeaders) {
+            out.println("<th>" + header + "</th>");
+
         }
-        out.close();
+        out.println("</tr>");
+
+        // Create table row for each row in result set
+        for (String[] row : tableData) {
+            out.println("<tr>");
+            for (int i = 0; i < row.length; i++) {
+                out.println("<td>" + row[i] + "</td>");
+            }
+            out.println("</tr>");
+        }
+
+        out.println("</table>");
+
+
+        // Connection con = null;
+        // try {
+        // synchronized (dataSource) {
+        // con = dataSource.getConnection();
+        // }
+        // try (Statement stmt = con.createStatement()) {
+        // String reqRodzaj = req.getParameter("rodzaj");
+
+        // // Get all cars of requested type
+        // ResultSet rs = stmt.executeQuery(
+        // "SELECT * FROM Cars WHERE Rodzaj=\'" + reqRodzaj + "\'");
+
+        // // Get metadata to create table dynamically
+        // ResultSetMetaData rsmd = rs.getMetaData();
+        // int columnCount = rsmd.getColumnCount();
+        // out.println("<table>");
+
+        // // Create header row
+        // out.println("<tr>");
+        // for (int i = 0; i < columnCount; i++) {
+        // out.println("<th>" + rsmd.getColumnName(i + 1) + "</th>");
+        // }
+        // out.println("</tr>");
+
+        // // Create table row for each row in result set
+        // while (rs.next()) {
+        // out.println("<tr>");
+        // for (int i = 0; i < columnCount; i++) {
+        // out.println("<td>" + rs.getString(i + 1) + "</td>");
+        // }
+        // out.println("</tr>");
+        // }
+        // out.println("</table>");
+
+        // }
+
     }
 
     @Override
