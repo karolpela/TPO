@@ -13,6 +13,14 @@
         <url-pattern>/form</url-pattern>
     </servlet-mapping>
     <servlet>
+        <servlet-name>database</servlet-name>
+        <servlet-class>zad1.DatabaseServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>database</servlet-name>
+        <url-pattern>/database</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>table</servlet-name>
         <servlet-class>zad1.TableServlet</servlet-class>
     </servlet>

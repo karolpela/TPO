@@ -4,6 +4,7 @@ package zad1;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,6 +28,7 @@ public class FormServlet extends HttpServlet {
         resp.setContentType("text/html; charset=utf-8");
 
         try (PrintWriter out = resp.getWriter()) {
+
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Car database interface</title>");
@@ -35,12 +37,23 @@ public class FormServlet extends HttpServlet {
             out.println("<body>");
 
             out.println("<center><h1>Car database interface</h1></center>");
+
+            var servletContext = getServletContext();
+            List<String> rodzajList = (List<String>) servletContext.getAttribute("rodzajList");
+
             out.print("<form method = \"POST\""
-                    + "form action=\"http://localhost:8080/TPO5/form\">");
-            out.println("Rodzaj:");
-            out.println("<input type=text size=20 name=rodzaj>");
-            out.println("<br>");
-            out.println("<input type=submit>");
+                    + " action=\"http://localhost:8080/TPO5/form\"");
+            out.println("<label for=\"rodzaj\"> Wybierz rodzaj: </label>");
+            out.println("<select name=\"rodzaj\" id=\"rodzaj\">");
+
+
+            for (String rodzaj : rodzajList) {
+                out.println("<option value=\"" + rodzaj + "\">" + rodzaj + "</option>");
+            }
+
+            out.println("</select>");
+            out.println("<input type=submit value=\"Wyślij\"/>");
+            out.println("</form>");
 
             String rodzaj = req.getParameter("rodzaj");
 
@@ -48,10 +61,6 @@ public class FormServlet extends HttpServlet {
                 printEndTag(out);
                 return;
             }
-
-            out.println("<p>Request parameter: ");
-            out.println(rodzaj);
-            out.println("</p>");
 
             RequestDispatcher disp = getServletContext().getRequestDispatcher("/table");
             disp.include(req, resp);
