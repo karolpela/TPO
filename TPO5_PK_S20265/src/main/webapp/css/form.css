@@ -1,4 +1,7 @@
 body {
+    max-width: max-content;
+    margin: auto;
+    margin-top: 10em;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: larger;
 }
