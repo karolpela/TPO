@@ -93,7 +93,6 @@ public class DatabaseServlet extends HttpServlet {
 
                 List<String[]> tableData = new ArrayList<>();
 
-
                 // Create header row
                 List<String> tableHeaders = new ArrayList<>();
 
@@ -122,7 +121,7 @@ public class DatabaseServlet extends HttpServlet {
                 out.println(sqle.getMessage());
             }
         }
-        // out.close();
+        // out.close(); don't because this is an "include" and other servlets need it!
     }
 
 

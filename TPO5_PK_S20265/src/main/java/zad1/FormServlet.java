@@ -29,6 +29,7 @@ public class FormServlet extends HttpServlet {
 
             out.println("<html>");
             out.println("<head>");
+            out.println("<link rel=\"stylesheet\" href=\"css/form.css\">");
             out.println("<title>Car database interface</title>");
             out.println("</head>");
 
