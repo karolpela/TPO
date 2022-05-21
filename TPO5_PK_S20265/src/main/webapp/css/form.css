@@ -6,8 +6,13 @@ body {
     font-size: larger;
 }
 
+table {
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
 td {
-    min-width: 6em;
+    min-width: 7em;
 }
 
 tr {
@@ -20,8 +25,4 @@ tr:nth-of-type(odd) {
 
 tr:nth-of-type(even) {
     background: white;
-}
-
-table {
-    border-collapse: collapse;
 }
