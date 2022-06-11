@@ -12,6 +12,7 @@ import javax.jms.TopicSubscriber;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -73,8 +74,23 @@ public class Client extends Application {
         subscriber = session.createSubscriber(topic);
         publisher = session.createPublisher(topic);
 
-        // start receiver task
-        new Thread(new ReceiverTask(this)).start();
+        // start connection and create message listener
+        connection.start();
+        subscriber.setMessageListener(message -> {
+            var textMessage = (TextMessage) message;
+            Platform.runLater(() -> {
+                if (message instanceof TextMessage) {
+                    try {
+                        messageView.getItems().add(textMessage.getText());
+                    } catch (JMSException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    messageView.getItems().add(message.toString());
+                }
+                messageView.scrollTo(messageView.getItems().size() - 1);
+            });
+        });
     }
 
     @FXML
