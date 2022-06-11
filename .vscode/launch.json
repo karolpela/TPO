@@ -6,13 +6,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch Main",
-            "request": "launch",
-            "mainClass": "main.java.zad1.Main",
-            "projectName": "TPO5_PK_S20265"
-        },
-        {
-            "type": "java",
             "name": "Launch Current File",
             "request": "launch",
             "mainClass": "${file}"
@@ -22,7 +15,12 @@
             "name": "TPO1",
             "request": "launch",
             "mainClass": "zad1.Main",
-            "projectName": "TPO1_PK_S20265"
+            "projectName": "TPO1_PK_S20265",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO1",
+                "order": 1
+            }
         },
         {
             "type": "java",
@@ -30,15 +28,25 @@
             "request": "launch",
             "mainClass": "zad1.Main",
             "projectName": "TPO2_PK_S20265",
-            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.base,javafx.graphics,javafx.swing,javafx.controls,javafx.web"
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.base,javafx.graphics,javafx.swing,javafx.controls,javafx.web",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO2",
+                "order": 1
+            }
         },
         {
             "type": "java",
-            "name": "TPO3",
+            "name": "TPO3 Servers",
             "request": "launch",
             "mainClass": "zad1.Main",
             "projectName": "TPO3_PK_S20265",
-            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics"
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO3",
+                "order": 1
+            }
         },
         {
             "type": "java",
@@ -46,7 +54,12 @@
             "request": "launch",
             "mainClass": "zad1.Client",
             "projectName": "TPO3_PK_S20265",
-            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics"
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO3",
+                "order": 2
+            }
         },
         {
             "type": "java",
@@ -89,24 +102,29 @@
         },
         {
             "type": "java",
-            "name": "TPO4 Publisher CLI",
+            "name": "TPO5",
             "request": "launch",
-            "mainClass": "zad1.PublisherCli",
-            "projectName": "TPO4_PK_S20265",
-            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics",
+            "mainClass": "zad1.Main",
+            "projectName": "TPO5_PK_S20265",
             "presentation": {
                 "hidden": false,
-                "group": "TPO4",
-                "order": 7
+                "group": "TPO5",
+                "order": 1
             }
         },
         {
             "type": "java",
-            "name": "TPO5",
+            "name": "TPO6",
             "request": "launch",
-            "mainClass": "zad1.Main",
-            "projectName": "TPO5_PK_S20265"
-        }
+            "mainClass": "zad1.Client",
+            "projectName": "TPO6_PK_S20265",
+            "vmArgs": "--module-path C:\\Users\\karol\\lib\\openjfx-17.0.2_windows-x64_bin-sdk\\javafx-sdk-17.0.2\\lib --add-modules javafx.controls,javafx.fxml,javafx.graphics",
+            "presentation": {
+                "hidden": false,
+                "group": "TPO6",
+                "order": 1
+            }
+        },
     ],
     "compounds": [
         {
